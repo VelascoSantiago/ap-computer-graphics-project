@@ -1,0 +1,7 @@
+build/
+*.zip
+*.rar
+*.7z
+*.blend
+*.blend1
+.vscode/
