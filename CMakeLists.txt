@@ -12,11 +12,6 @@ target_include_directories(glad PUBLIC dependencias/glad/include)
 file(GLOB SOIL2_SRC dependencias/SOIL2/*.c)
 add_library(soil2 STATIC ${SOIL2_SRC})
 target_include_directories(soil2 PUBLIC dependencias/SOIL2)
-target_link_libraries(soil2 PUBLIC OpenGL::GL)   # <- nueva
+target_link_libraries(soil2 PUBLIC OpenGL::GL)
 
-file(GLOB TODAS RELATIVE ${CMAKE_SOURCE_DIR} *)
-foreach(carpeta ${TODAS})
-    if(EXISTS ${CMAKE_SOURCE_DIR}/${carpeta}/CMakeLists.txt AND NOT carpeta STREQUAL "template")
-        add_subdirectory(${carpeta})
-    endif()
-endforeach()
+add_subdirectory(proyecto_lab)
