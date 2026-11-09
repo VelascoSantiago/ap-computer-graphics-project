@@ -59,6 +59,8 @@ uniform PointLight pointLights[NUMBER_OF_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
 uniform int transparency;
+uniform float emissive;   // 0..1: suma el color propio de la textura (partes que "se encienden": visor, luces del casco)
+uniform float brillo;     // multiplica la iluminacion (1 = normal; <1 = pieza apagada). main lo pone en 1 cada cuadro
 
 // Function prototypes
 vec3 CalcDirLight( DirLight light, vec3 normal, vec3 viewDir );
@@ -83,7 +85,8 @@ void main( )
     // Spot light
     result += CalcSpotLight( spotLight, norm, FragPos, viewDir );
  	
-    color = vec4(result, texture(material.diffuse, TexCoords).a);
+    vec4 albedo = texture(material.diffuse, TexCoords);
+    color = vec4(result * brillo + emissive * albedo.rgb, albedo.a);
 	  if(color.a < 0.1 && transparency==1)
         discard;
 

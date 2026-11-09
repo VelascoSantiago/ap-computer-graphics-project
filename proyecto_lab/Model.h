@@ -249,6 +249,12 @@ GLint TextureFromFile(const char *path, string directory)
 {
 	string filename = string(path);
 	filename = directory + '/' + filename;
+
+	// Una sola copia en GPU por archivo: las piezas de un robot comparten los mismos PNG
+	static map<string, GLuint> cacheArchivo;
+	auto hit = cacheArchivo.find(filename);
+	if (hit != cacheArchivo.end()) return hit->second;
+
 	GLuint textureID;
 	glGenTextures(1, &textureID);
 
@@ -266,5 +272,6 @@ GLint TextureFromFile(const char *path, string directory)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	SOIL_free_image_data(image);
 
+	cacheArchivo[filename] = textureID;
 	return textureID;
 }

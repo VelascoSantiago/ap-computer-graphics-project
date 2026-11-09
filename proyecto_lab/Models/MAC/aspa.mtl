@@ -1,12 +1,12 @@
-# Blender 5.2.2 LTS MTL File: 'cuau68.blend'
+# Blender 5.2.2 LTS MTL File: 'cuau68_partes.blend'
 # www.blender.org
 
-newmtl obsidian
-Ns 640.000000
-Ka 0.500000 0.500000 0.500000
-Kd 0.016100 0.002787 0.024859
+newmtl obsidian_gl
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
-illum 3
+illum 2
+map_Kd obsidian.png

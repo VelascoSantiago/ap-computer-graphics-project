@@ -130,6 +130,16 @@ public:
 		return this->front;
 	}
 
+	// Coloca la camara en 'pos' mirando a 'objetivo' (para empezar la camara libre donde estaba la del relato)
+	void SetLookAt(glm::vec3 pos, glm::vec3 objetivo)
+	{
+		this->position = pos;
+		glm::vec3 f = glm::normalize(objetivo - pos);
+		this->yaw = glm::degrees(atan2(f.z, f.x));
+		this->pitch = glm::degrees(asin(f.y));
+		this->updateCameraVectors();
+	}
+
 private:
 	// Camera Attributes
 	glm::vec3 position;

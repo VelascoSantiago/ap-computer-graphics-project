@@ -14,7 +14,7 @@ foreach(SOURCE ${SOURCES})
 endforeach()
 
 # Shader/images/Models como symlinks: editas ahí y no hace falta re-copiar
-foreach(RES Shader images Models)
+foreach(RES Shader images Models UI)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${RES})
         file(CREATE_LINK ${CMAKE_CURRENT_SOURCE_DIR}/${RES}
              ${CMAKE_CURRENT_BINARY_DIR}/${RES} SYMBOLIC)
