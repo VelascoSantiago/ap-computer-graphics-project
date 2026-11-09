@@ -1,4 +1,4 @@
-![Portada de T68 Sci-Fi Tribute](T68_%20Sci-Fi%20Tribute_Cover.png)
+![Portada de T68 Sci-Fi Tribute](T68%20Sci-Fi%20Tribute%20Poster.png)
 
 # T68 Sci-Fi Tribute — Manual de usuario
 
