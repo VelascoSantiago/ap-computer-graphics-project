@@ -3,7 +3,7 @@
 ## Información del equipo
 | ID | Dato requerido | Dónde se usa |
 |---|---|---|
-| EQ-01 | Integrantes, grupo y roles | Portadas, sección 5.4 del manual técnico |
+| EQ-01 | Grupo y roles (integrantes y equipo H ya anotados) | Portadas, sección 5.4 del manual técnico |
 | EQ-02 | Nombre completo de Víctor (modelo de la plaza) | Créditos |
 | EQ-03 | Decidir si se menciona el uso de asistentes de IA | Manual técnico 5.4 y 17 |
 | EQ-04 | Procedencia y licencias de texturas y modelos | Manual técnico 13.4 y 17 |

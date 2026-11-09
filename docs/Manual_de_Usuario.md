@@ -5,7 +5,7 @@
 **Universidad Nacional Autónoma de México · Facultad de Ingeniería**
 Laboratorio de Computación Gráfica · Profesor: Ing. Edén Espinoza Urzúa
 
-Integrantes: **[PENDIENTE: nombres completos del equipo]**
+Equipo **H** — Integrantes: Santiago Velasco García y Cristian Michael Aguilar Chávez
 Grupo: **[PENDIENTE]**
 Fecha de entrega: 9 de noviembre de 2026
 Versión documentada: rama `main`, a partir del commit `0024f94`
