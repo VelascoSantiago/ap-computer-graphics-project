@@ -20,7 +20,7 @@
 
 ## Evidencia visual
 - CAP-01 a CAP-05 (capturas del manual de usuario): **hechas**.
-- C-01 a C-07: capturas del modelo comparables con las fotos de los siete elementos (requisito R1): pendientes.
+- C-01 a C-07: capturas del modelo **hechas** (`referencias/capturas/`, con `--sinhud`). Falta que el equipo redacte la comparación visual contra las fotos (R1).
 - F-05, F-06, F-07: fotos de banca, reja y memorial con derechos identificados.
 
 ## Entrega

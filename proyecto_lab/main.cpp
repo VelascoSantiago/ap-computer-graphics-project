@@ -904,13 +904,14 @@ int main(int argc, char** argv)
 	// ---- opciones de linea de comandos (pruebas): --escena N | --teclas t:TECLA,t:TECLA (SPACE ENTER LEFT RIGHT) | --foto archivo.png tiempo ----
 	struct TeclaAuto { float t; int key; bool hecha; };
 	std::vector<TeclaAuto> teclasAuto;
-	std::string fotoRuta; float fotoT = -1.0f; bool camForzada = false;
+	std::string fotoRuta; float fotoT = -1.0f; bool camForzada = false, sinHud = false;
 	IniciarEscena(0);                                  // el relato empieza en la introduccion (--escena N lo cambia)
 	CargarAjustes();
 	for (int i = 1; i < argc; i++)
 	{
 		std::string a = argv[i];
 		if (a == "--escena" && i + 1 < argc) IrAEscena(atoi(argv[++i]));
+		else if (a == "--sinhud") sinHud = true;   // capturas limpias: no dibuja el texto del relato
 		else if (a == "--foto" && i + 2 < argc) { fotoRuta = argv[++i]; fotoT = (float)atof(argv[++i]); }
 		else if (a == "--cam" && i + 6 < argc)   // camara fija para pruebas: --cam px py pz mx my mz
 		{
@@ -1118,7 +1119,7 @@ int main(int argc, char** argv)
 
 		}   // fin del banco de pruebas
 
-		if (modoRelato) DibujarHUDRelato(hudShader);
+		if (modoRelato && !sinHud) DibujarHUDRelato(hudShader);
 
 		// captura de pantalla para pruebas (--foto archivo.png tiempo): se toma antes de intercambiar buffers y se cierra
 		if (fotoT >= 0.0f && tReloj >= fotoT)

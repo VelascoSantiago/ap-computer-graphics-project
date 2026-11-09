@@ -665,7 +665,7 @@ Los objetos repetidos cuentan como uno; puertas, ventanas y escaleras no cuentan
 | 11 | Railgun | `railgun_aim.obj` | 572 / 1 108 | Color plano |
 | 12 | Obrero | `obrero_*` | 312 / 540 | Colores planos |
 
-**[PENDIENTE: la comparación visual con las fotografías de referencia (requisito R1) está en `referencias/Comparativa_Tlatelolco.md`, con las capturas del modelo por completar.]**
+Las capturas del modelo de los siete elementos y las fotografías de referencia están en [`referencias/Comparativa_Tlatelolco.md`](referencias/Comparativa_Tlatelolco.md). **[PENDIENTE: valoración visual de la comparación por el equipo.]**
 
 ### 13.4 Inventario de texturas
 
@@ -791,6 +791,7 @@ El diagrama se apoya en las cuatro entregas parciales de la clase de teoría y e
 | `--teclas t:TECLA,…` | Simula teclas (`SPACE`, `ENTER`, `LEFT`, `RIGHT`, `PGDN`, `PGUP`, `TAB`, `F3` y letras) en el segundo `t` |
 | `--cam px py pz mx my mz` | Fija la cámara (posición y punto de mira) |
 | `--foto archivo.png T` | Guarda una captura en el segundo `T` y cierra |
+| `--sinhud` | No dibuja el texto del relato (capturas limpias) |
 
 ### Anexo C — Compilar y ejecutar
 
