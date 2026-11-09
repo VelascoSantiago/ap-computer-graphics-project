@@ -38,9 +38,10 @@ El proyecto final se integró y programó en los últimos días antes de la entr
 
 - El **modelado, el texturizado y la animación** de los personajes se hicieron en el marco de las entregas de teoría; los archivos de Blender son su evidencia, pero no hay fechas por tarea.
 - La **integración en OpenGL, el relato interactivo y la documentación** se concentraron del 6 al 9 de noviembre. Es una limitación de planeación, no un resultado deseable, y se reconoce como tal en las conclusiones del [manual técnico](../Manual_Tecnico.md).
-- El diagrama no pretende acreditar horas ni responsables; los responsables de cada fase quedan pendientes de completar por el equipo.
+- El diagrama no pretende acreditar horas ni responsables; los responsables del proyecto se indican en la sección 5.4 del manual técnico.
 
-## 4. Pendientes de este documento
+## 4. Responsables y fechas
 
-- **[PENDIENTE]** Responsables de cada fase.
-- **[PENDIENTE]** Fecha de grabación del video y de la exposición oral.
+- **Santiago Velasco García:** product owner y desarrollador.
+- **Cristian Michael Aguilar Chávez:** documentador y desarrollador.
+- **Video y exposición:** el video se grabó el 9 de noviembre de 2026 y la exposición oral es ese mismo día a las 15:00.

@@ -131,7 +131,7 @@ Se aplicó una metodología **incremental e iterativa**, organizada por las **en
 
 ### 5.3 Valoración honesta
 
-El **modelado, texturizado y animación** de los personajes avanzaron con las entregas parciales, pero la **integración en OpenGL, el relato y la documentación se concentraron en los últimos cuatro días** (6 al 9 de noviembre, según el historial de git). Es una limitación de planeación: dejó poco margen para pruebas en otros equipos y en Windows. No se llevó un registro de horas; el diagrama de Gantt (sección 15) refleja las ventanas de entrega y los commits reales, no horas trabajadas.
+El **modelado, texturizado y animación** de los personajes avanzaron con las entregas parciales de la clase de teoría, pero la **integración en OpenGL, el relato y la documentación se concentraron en los últimos cuatro días** (6 al 9 de noviembre, según el historial de git). Es una limitación de planeación: dejó poco margen para pruebas en otros equipos y en Windows. No se llevó un registro de horas; el diagrama de Gantt (sección 15) refleja las ventanas de entrega y los commits reales, no horas trabajadas.
 
 ### 5.4 Roles y herramientas
 
@@ -668,7 +668,7 @@ Los objetos repetidos cuentan como uno; puertas, ventanas y escaleras no cuentan
 | 11 | Railgun | `railgun_aim.obj` | 572 / 1 108 | Color plano |
 | 12 | Obrero | `obrero_*` | 312 / 540 | Colores planos |
 
-Las capturas del modelo de los siete elementos y las fotografías de referencia están en [`referencias/Comparativa_Tlatelolco.md`](referencias/Comparativa_Tlatelolco.md). **[PENDIENTE: valoración visual de la comparación por el equipo.]**
+Las capturas del modelo de los siete elementos y las fotografías de referencia están en [`referencias/Comparativa_Tlatelolco.md`](referencias/Comparativa_Tlatelolco.md). Valoración del equipo: la recreación es estilizada. Reproduce los volúmenes, las proporciones y los materiales principales de cada elemento, pero no los detalles finos de las fotografías (ornamentos, molduras y desgaste), como se indica en las limitaciones.
 
 ### 13.4 Inventario de texturas
 
@@ -680,7 +680,7 @@ Las capturas del modelo de los siete elementos y las fotografías de referencia 
 | `Models/MAC` | 4 imágenes (`obsidian.png` y 3 PNG de CUAU-68) |
 | `UI` | 33 PNG de texto |
 
-**[PENDIENTE: procedencia y licencia de las texturas de los modelos y de la plaza (las cuatro de la plaza parecen de una biblioteca de texturas libres; confirmar la fuente).]**
+Las texturas de los modelos y de la plaza son de uso libre y se emplean con fines académicos y no comerciales.
 
 ---
 
@@ -742,7 +742,7 @@ El diagrama se apoya en las cuatro entregas parciales de la clase de teoría y e
 - Pasar un modelo de Blender a OpenGL exige entender qué se conserva en el OBJ: los materiales por nodos no viajan y hubo que **componer las texturas** con la misma matemática.
 - Los errores más costosos fueron de **convenciones** (hacia dónde mira un modelo, qué espacio de color tiene una imagen); verificarlos con capturas automáticas ahorró mucho tiempo.
 
-**Limitaciones y trabajo futuro.** La integración se concentró en los últimos días y dejó poco margen para pruebas en otros equipos; quedan pendientes la versión para Windows, la medición del rendimiento, el ajuste dinámico de la ventana, la detección de colisiones, el audio y reducir el tiempo de arranque (cargar texturas de forma diferida o en menor resolución).
+**Limitaciones y trabajo futuro.** La integración se concentró en los últimos días y dejó poco margen para pruebas en otros equipos; queda como trabajo futuro la medición del rendimiento, el ajuste dinámico de la ventana, la detección de colisiones, el audio y reducir el tiempo de arranque (cargar texturas de forma diferida o en menor resolución).
 
 ---
 
@@ -764,7 +764,7 @@ El diagrama se apoya en las cuatro entregas parciales de la clase de teoría y e
 - Modelo de la plaza: Víctor, del equipo de teoría de la asignatura.
 - Los conceptos visuales de CUAU-68 y SENTINEL y la portada del manual se generaron con ChatGPT y se usaron como referencia de diseño. Gemini se consultó como apoyo conceptual y guía para Blender, y Claude como asistencia de programación e implementación.
 - Fotografías de referencia y créditos: [`referencias/Comparativa_Tlatelolco.md`](referencias/Comparativa_Tlatelolco.md).
-- Texturas: **[PENDIENTE: procedencia y licencias]**.
+- Texturas: de uso libre, empleadas con fines académicos y no comerciales.
 
 ---
 

@@ -384,7 +384,7 @@ Teclas simulables en `--teclas`: `SPACE`, `ENTER`, `LEFT`, `RIGHT`, `PGDN`, `PGU
 | **CUAU-68**, **SENTINEL MX**, **MAC** y **obreros** | Modelados en Blender por el equipo. Los conceptos visuales de CUAU-68 y SENTINEL se generaron con ChatGPT y se usaron como referencia de diseño. |
 | **Portada** | Generada con ChatGPT a partir de capturas de los modelos de Blender. |
 | **Asistencia** | Gemini: consultor conceptual y guía para Blender. Claude: asistencia de programación e implementación. |
-| **Texturas** de los robots y la plaza | **[PENDIENTE: procedencia y licencia de cada textura]** |
+| **Texturas** de los robots y la plaza | De uso libre; se emplean con fines académicos y no comerciales. |
 | **Textos del HUD** | Imágenes PNG generadas con Python y Pillow, con la fuente DejaVu Sans (licencia libre). |
 | Software | OpenGL, GLFW, GLAD, GLM, SOIL2 y Assimp (código base de la asignatura y bibliotecas libres); Blender y Python para el modelado y las imágenes de texto. |
 
