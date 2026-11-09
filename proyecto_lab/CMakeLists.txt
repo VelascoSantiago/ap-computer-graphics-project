@@ -13,10 +13,21 @@ foreach(SOURCE ${SOURCES})
     target_link_libraries(${T} PRIVATE OpenGL::GL glfw glad soil2 assimp::assimp)
 endforeach()
 
-# Shader/images/Models como symlinks: editas ahí y no hace falta re-copiar
+if(MSVC)
+    target_compile_definitions(${T} PRIVATE _CRT_SECURE_NO_WARNINGS NOMINMAX _USE_MATH_DEFINES)
+endif()
+
+# Recursos: en Linux, symlinks (editas y no hace falta re-copiar); en Windows los symlinks
+# requieren permisos, asi que se copian junto al ejecutable despues de compilar.
 foreach(RES Shader images Models UI)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${RES})
-        file(CREATE_LINK ${CMAKE_CURRENT_SOURCE_DIR}/${RES}
-             ${CMAKE_CURRENT_BINARY_DIR}/${RES} SYMBOLIC)
+        if(WIN32)
+            add_custom_command(TARGET ${T} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                        ${CMAKE_CURRENT_SOURCE_DIR}/${RES} $<TARGET_FILE_DIR:${T}>/${RES})
+        else()
+            file(CREATE_LINK ${CMAKE_CURRENT_SOURCE_DIR}/${RES}
+                 ${CMAKE_CURRENT_BINARY_DIR}/${RES} SYMBOLIC)
+        endif()
     endif()
 endforeach()

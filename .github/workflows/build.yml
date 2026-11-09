@@ -1,0 +1,52 @@
+name: Compilar ejecutables
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencias con vcpkg (estaticas)
+        run: vcpkg install glfw3:x64-windows-static assimp:x64-windows-static
+      - name: Configurar
+        run: >
+          cmake -S . -B build -A x64
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+      - name: Compilar
+        run: cmake --build build --config Release
+      - name: Armar carpeta de entrega
+        shell: bash
+        run: |
+          mkdir entrega
+          cp build/proyecto_lab/Release/proyecto_lab_main.exe entrega/
+          cp -r proyecto_lab/Models proyecto_lab/Shader proyecto_lab/UI entrega/
+          rm -f entrega/ajustes_escenas.txt
+          ls entrega
+      - uses: actions/upload-artifact@v4
+        with:
+          name: T68-windows
+          path: entrega
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencias
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ libglfw3-dev libassimp-dev libgl1-mesa-dev
+      - name: Compilar
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
+      - name: Armar carpeta de entrega
+        run: |
+          mkdir entrega
+          cp build/proyecto_lab/proyecto_lab_main entrega/
+          cp -r proyecto_lab/Models proyecto_lab/Shader proyecto_lab/UI entrega/
+          ls entrega
+      - uses: actions/upload-artifact@v4
+        with:
+          name: T68-linux
+          path: entrega
