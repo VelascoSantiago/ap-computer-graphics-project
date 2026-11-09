@@ -58,6 +58,8 @@ glm::vec3 posSentinel(0.0f, 0.0f, -30.0f);   // centro del grupo de 3 SENTINEL
 glm::vec3 posMac(12.0f, 0.0f, 6.0f);
 float yawGrupo[3] = { 0.0f, 0.0f, 0.0f };   // giro manual en grados (Q / E)
 
+// Fila de SENTINEL del relato (escena 4): a lo largo de z, como salen caminando
+const glm::vec3 offLinea[3] = { glm::vec3(0.0f, 0.0f, -4.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 4.5f) };
 const glm::vec3 offSentinel[3] = {
 	glm::vec3(-11.0f, 0.0f, 0.0f),
 	glm::vec3(  0.0f, 0.0f, -5.0f),
@@ -269,21 +271,54 @@ struct Escena
 };
 
 // Puntos de la plaza (de plaza.obj: el suelo es plano en y = 0)
-const glm::vec3 ZP(3.0f, 0.0f, 6.0f);        // zona prehispanica (escenas 1 y 3): piso plano junto a la plataforma de los vestigios
-const glm::vec3 SG(4.0f, 0.0f, -2.0f);       // "frente al grupo" (escenas 5 a 8): delante de la hilera de arboles de z = -10
+// ---- Ajustes aprobados por Santiago (2026-11-09), tomados del modo edicion ----
+const glm::vec3 ZP(-12.72f, 1.90f, 8.31f);          // escena 1: centro del corro de obreros (sobre la plataforma de los vestigios, suelo y = 1.85)
+const glm::vec3 E1_CUAU(-12.91f, 1.61f, 5.10f);     // escena 1: pies de CUAU acostado (su cabeza queda hacia +z)
+const float     E1_CUAU_YAW = -179.1f;
+const glm::vec3 E3_CUAU(-12.58f, 2.00f, 7.70f);     // escena 3
+const float     E3_CUAU_YAW = 125.0f;
+const float     E2_Z_OFF[3] = { 5.31f, 4.81f, 4.40f };   // escena 2: desplazamiento en z de cada SENTINEL (la fila queda mas cerca de la puerta)
+const glm::vec3 E4_INICIO(-11.71f, 0.0f, 3.62f);    // escena 4: CUAU sale de la pirámide ...
+const glm::vec3 E4_FIN(7.0f, 0.0f, 5.2f);           // ... y corre hacia la camara, frente a la fila de SENTINEL
+const glm::vec3 E4_SENT(13.71f, 0.28f, 1.31f);      // escena 4: centro de la fila de SENTINEL (a lo largo de z), ya con tu ajuste posterior
+const glm::vec3 E5_SENT(16.13f, 0.0f, 5.21f);       // escenas 5 a 7: el SENTINEL que cae
+const float     E5_SENT_YAW = -94.1f;
+const glm::vec3 E5_CUAU(13.22f, 0.60f, 2.69f);      // escenas 5 y 7: donde se detiene CUAU para el azote
+const float     E5_CUAU_YAW = 64.4f;
+const glm::vec3 E6_SENT(16.63f, 0.0f, 2.01f);       // escena 6 (punetazo): el SENTINEL (mira hacia E5_SENT_YAW) ...
+const glm::vec3 E6_CUAU(14.89f, 0.50f, 0.80f);      // ... y donde termina CUAU
+const float     E6_CUAU_YAW = 73.2f;
+const glm::vec3 E7_SENT(22.65f, 0.0f, -1.49f);      // escena 7 (azote final): el SENTINEL un poco mas atras (+1.40, +0.41 respecto a 21.25, -1.90)
+const float     E7_SENT_YAW = -151.2f;
+const glm::vec3 E7_CUAU(18.82f, 0.60f, -3.42f);
+const float     E7_CUAU_YAW = 45.4f;
+const glm::vec3 E8_CUAU(15.20f, 0.0f, 4.20f);       // escena 8 (victoria): CUAU y los tres SENTINEL derribados
+const float     E8_CUAU_YAW = -185.5f;
+const glm::vec3 E8_SENT[3] = { glm::vec3(6.22f, 0.0f, 3.51f), glm::vec3(13.82f, 0.0f, 0.70f), glm::vec3(23.01f, 0.0f, -1.00f) };
+const float     E8_SENT_YAW[3] = { 25.0f, -10.0f, -148.4f };
+const glm::vec3 MAC_MANO(-3.9f, -0.1f, 0.85f);      // centro de la palma de CUAU en el marco del antebrazo (el eje del antebrazo queda 0.85 detras)
+const float     MAC_AGARRE_Y = 4.6f;                // punto del mango (y = -4.6 en el OBJ) que queda dentro del puño
+
+// Altura del piso en el recorrido de la escena 4 (de plaza.obj): plataforma a 1.85 hasta x = -7, escalones, y piso a x = -3.3
+static float AlturaPiso4(float x)
+{
+	if (x <= -7.0f) return 1.85f;
+	if (x >= -3.3f) return 0.04f;
+	return glm::mix(1.85f, 0.04f, (x + 7.0f) / 3.7f);
+}
 const glm::vec3 PUERTA(12.0f, 0.0f, 11.0f);  // puerta del Templo de Santiago (el ábside está al sur, z ~ 30)
 
 const int N_ESC = 10;
 const Escena ESC[N_ESC] = {
 	/* 0 introduccion  */ { { "t0a", "t0b", "t0c" }, true,  glm::vec3(-6, 24, -20), glm::vec3(6, 4, 18),     5.0f },
-	/* 1 obreros       */ { { "t1a" },               false, glm::vec3(10, 5.5f, 0), glm::vec3(3, 1.6f, 6),   4.0f },
-	/* 2 sentinels     */ { { "t2a" },               false, glm::vec3(28, 6, 2),    glm::vec3(12, 3.5f, 2),  4.0f },
-	/* 3 levanta MAC   */ { { "t3a" },               false, glm::vec3(9, 4.5f, -2), glm::vec3(3, 3.2f, 6),   3.5f },
-	/* 4 sprint        */ { { "t4a" },               false, glm::vec3(4, 8, -18),   glm::vec3(4, 3, 14),     4.0f },
-	/* 5 azote 1       */ { { "t5a" },               false, glm::vec3(16, 4.5f, 2.5f), glm::vec3(4, 3, 2.5f),   3.5f },
-	/* 6 punetazo      */ { { "t6a" },               false, glm::vec3(16, 4.5f, 2.5f), glm::vec3(4, 3, 2.5f),   0.8f },
-	/* 7 azote final   */ { { "t7a" },               false, glm::vec3(16, 4.5f, 2.5f), glm::vec3(4, 3, 2.5f),   0.8f },
-	/* 8 victoria      */ { { "t8a" },               false, glm::vec3(-4, 3.5f, 20), glm::vec3(4, 4.5f, 2), 4.0f },
+	/* 1 obreros       */ { { "t1a", "t1b", "t1c" },  false, glm::vec3(-16.9f, 7.6f, -1.1f), glm::vec3(-12.5f, 3.6f, 6.9f), 4.0f },
+	/* 2 sentinels     */ { { "t2a", "t2b" },         false, glm::vec3(3.2f, 13.4f, 13.1f), glm::vec3(8.8f, 7.4f, 7.3f),   4.0f },
+	/* 3 levanta MAC   */ { { "t3a", "t3b" },         false, glm::vec3(-9.7f, 11.4f, 6.2f), glm::vec3(-14.6f, 3.3f, 9.5f), 3.5f },
+	/* 4 sprint        */ { { "t4a" },               false, glm::vec3(25.3f, 7.3f, -2.9f), glm::vec3(16.2f, 6.8f, 1.1f),  4.0f },
+	/* 5 azote 1       */ { { "t5a" },               false, glm::vec3(13.5f, 6.6f, 1.1f), glm::vec3(17.5f, 1.9f, 9.0f),  3.5f },
+	/* 6 punetazo      */ { { "t6a" },               false, glm::vec3(19.9f, 2.3f, -1.3f), glm::vec3(12.5f, 5.3f, 4.6f),   0.8f },
+	/* 7 azote final   */ { { "t7a" },               false, glm::vec3(16.0f, 6.0f, -3.6f), glm::vec3(25.1f, 4.0f, 0.2f),   0.8f },
+	/* 8 victoria      */ { { "t8a" },               false, glm::vec3(23.1f, 2.2f, -8.4f), glm::vec3(18.1f, 3.6f, 0.2f), 4.0f },
 	/* 9 lapida        */ { { "t9a", "t9b", "t9c" }, true,  glm::vec3(0, 1.9f, 25.0f), glm::vec3(0, 1.5f, 31.3f), 5.0f },
 };
 
@@ -306,6 +341,44 @@ glm::vec3 sentPos[3]; float sentYaw[3] = { 0, 0, 0 }, sentCaida[3] = { 0, 0, 0 }
 float macMezcla = 1.0f;          // 0 = en el suelo, 1 = en la mano
 Model *mdCuau = nullptr, *mdSentinel = nullptr, *mdRailgun = nullptr, *mdMac = nullptr, *mdAspa = nullptr;
 
+// ---- MODO EDICION (F3): mueve los actores de la escena actual. Los ajustes se SUMAN a lo que calcula la escena ----
+// actores: 0 CUAU, 1..3 SENTINEL, 4 OBREROS (el grupo). edOff[escena][actor] = (dx, dy, dz, giro en grados)
+bool modoEdicion = false;
+int  edSel = 0;
+glm::vec4 edOff[10][5];     // global: arranca en ceros
+static const char* NOM_ACTOR[5] = { "CUAU", "SENTINEL 1", "SENTINEL 2", "SENTINEL 3", "OBREROS" };
+bool  edSucio = false;       // hay ajustes sin guardar
+float tAutoGuardar = 0.0f;
+
+// Los ajustes se guardan en ajustes_escenas.txt (carpeta desde donde se corre) y se cargan al abrir: un cierre no los pierde
+static void GuardarAjustes()
+{
+	FILE* f = fopen("ajustes_escenas.txt", "w");
+	if (!f) return;
+	fprintf(f, "# escena actor dx dy dz giro   (actores: 0 CUAU, 1-3 SENTINEL, 4 OBREROS)\n");
+	for (int e = 0; e < 10; e++) for (int a = 0; a < 5; a++)
+	{
+		const glm::vec4& o = edOff[e][a];
+		if (o.x != 0.0f || o.y != 0.0f || o.z != 0.0f || o.w != 0.0f) fprintf(f, "%d %d %.3f %.3f %.3f %.2f\n", e, a, o.x, o.y, o.z, o.w);
+	}
+	fclose(f);
+	edSucio = false;
+}
+static void CargarAjustes()
+{
+	FILE* f = fopen("ajustes_escenas.txt", "r");
+	if (!f) return;
+	char linea[256]; int n = 0;
+	while (fgets(linea, sizeof(linea), f))
+	{
+		int e, a; float x, y, z, w;
+		if (linea[0] != '#' && sscanf(linea, "%d %d %f %f %f %f", &e, &a, &x, &y, &z, &w) == 6 && e >= 0 && e < 10 && a >= 0 && a < 5)
+		{ edOff[e][a] = glm::vec4(x, y, z, w); n++; }
+	}
+	fclose(f);
+	std::printf("Ajustes cargados de ajustes_escenas.txt (%d)\n", n);
+}
+
 static float Clamp01(float x) { return x < 0.0f ? 0.0f : (x > 1.0f ? 1.0f : x); }
 static float Rampa(float t, float a, float b) { return Suave(Clamp01((t - a) / (b - a))); }   // 0 antes de a, 1 despues de b
 
@@ -313,7 +386,7 @@ static float Rampa(float t, float a, float b) { return Suave(Clamp01((t - a) / (
 static float DurAnim(int e)
 {
 	switch (e) {
-		case 1: return 4.2f;  case 2: return 7.0f;  case 3: return 3.8f;  case 4: return 2.8f;
+		case 1: return 4.2f;  case 2: return 7.0f;  case 3: return 3.8f;  case 4: return 2.2f;
 		case 5: return 3.4f;  case 6: return 3.2f;  case 7: return 3.4f;  case 8: return 3.6f;
 	}
 	return 0.0f;
@@ -410,11 +483,12 @@ static void ProcesarTeclaRelato(int key)
 }
 
 // Cuadro de la escena de "azote": CUAU camina hacia el SENTINEL k, levanta la MAC, golpea y el SENTINEL cae
-static void EscenaAzote(float t, int k)
+static void EscenaAzote(float t, int k, const glm::vec3& posSent, float yawSent, const glm::vec3& cuauFin, float cuauYaw)
 {
-	cuauVisible = true; macVisible = true; sentVis[k] = true; sentPos[k] = SG; sentYaw[k] = 0.0f;
-	cuauYawR = 180.0f;                                       // CUAU mira a -Z, hacia el SENTINEL
-	cuauPosR = glm::vec3(SG.x, 0.0f, SG.z + 9.0f - 4.0f * Rampa(t, 0.0f, 1.1f));
+	cuauVisible = true; macVisible = true; sentVis[k] = true; sentPos[k] = posSent; sentYaw[k] = yawSent;
+	cuauYawR = cuauYaw;
+	glm::vec3 adelante(sin(glm::radians(cuauYaw)), 0.0f, cos(glm::radians(cuauYaw)));
+	cuauPosR = cuauFin - adelante * (4.0f * (1.0f - Rampa(t, 0.0f, 1.1f)));    // camina 4 unidades hacia donde mira y se detiene en cuauFin
 	if (t < 1.1f) PoseCaminar(rigCuau, tReloj, 22.0f, 7.0f);
 	float a = Rampa(t, 0.2f, 1.1f), s = Rampa(t, 1.1f, 1.4f), r = Rampa(t, 2.0f, 3.2f);
 	float brazo = glm::mix(glm::mix(-170.0f * a, -95.0f, s), -60.0f, r);   // arriba -> golpe horizontal -> recupera
@@ -428,6 +502,7 @@ static void EscenaAzote(float t, int k)
 static void ActualizarRelato(float dt)
 {
 	tReloj += dt; tFase += dt;
+	if (edSucio) { tAutoGuardar += dt; if (tAutoGuardar > 2.0f) { GuardarAjustes(); tAutoGuardar = 0.0f; } }
 	if (avisoT >= 0.0f) { avisoT += dt; if (avisoT > 1.3f) avisoT = -1.0f; }
 
 	if (fase == F_CAMARA) {
@@ -447,6 +522,7 @@ static void ActualizarRelato(float dt)
 	for (int i = 0; i < 3; i++) { sentVis[i] = false; sentRail[i] = true; sentCaida[i] = 0.0f; }
 	animSierras = false; animScarface = false; animEsquive = false; modoRig = false;
 	rigCuau.luces = 0.0f; macMezcla = 1.0f;
+	cuauPitchR = 0.0f;                    // de pie salvo que la escena 1 lo acueste (si no, al saltar de escena se quedaba acostado)
 	PoseReposo(rigCuau);
 	for (int i = 0; i < 3; i++) { PoseReposo(rigSent[i]); SujetarRailgun(rigSent[i]); }
 
@@ -460,7 +536,7 @@ static void ActualizarRelato(float dt)
 	{
 	case 1: {   // obreros terminan a CUAU (acostado); al despertar se incorpora y se encienden las luces
 		obrerosVisible = true; cuauVisible = true;
-		cuauPosR = ZP + glm::vec3(0.0f, 0.0f, 3.2f); cuauYawR = 0.0f;
+		cuauPosR = E1_CUAU; cuauYawR = E1_CUAU_YAW;
 		float lev = anim ? Rampa(t, 0.2f, 3.0f) : 0.0f;
 		cuauPitchR = -90.0f * (1.0f - lev);
 		rigCuau.luces = anim ? Rampa(t, 2.0f, 2.8f) * pulso : 0.0f;
@@ -471,47 +547,59 @@ static void ActualizarRelato(float dt)
 		for (int i = 0; i < 3; i++) {
 			sentVis[i] = true;
 			float tt = std::max(0.0f, (anim ? t : 0.0f) - 1.4f * i);
-			float z = std::max(12.5f - 5.0f * tt, zAlto[i]);
+			float z = std::max(12.5f - 5.0f * tt, zAlto[i]) + E2_Z_OFF[i];
 			sentPos[i] = glm::vec3(PUERTA.x, 0.0f, z); sentYaw[i] = 180.0f;
 			if (anim && z > zAlto[i] + 0.01f) { PoseCaminar(rigSent[i], tReloj + 0.5f * i, 24.0f, 6.5f); SujetarRailgun(rigSent[i]); }
 		}
 		break; }
 
-	case 3: {   // CUAU recoge la MAC y mira hacia arriba; las sierras arrancan
+	case 3: {   // CUAU ya empuña la MAC: la levanta, mira hacia arriba y las sierras arrancan
 		cuauVisible = true; macVisible = true;
-		cuauPosR = ZP; cuauYawR = 125.0f;                              // de frente a la camara (que esta al noreste)
-		float a = Rampa(t, 0.0f, 1.2f), b = Rampa(t, 1.2f, 3.0f);
-		rigCuau.p[TORSO].rot.x = 25.0f * a * (1.0f - b);               // se inclina a recogerla
-		rigCuau.p[BRAZO_D].rot.x = -25.0f * a - 55.0f * b;
-		rigCuau.p[ANTEBRAZO_D].rot.y = 80.0f * b;
+		cuauPosR = E3_CUAU; cuauYawR = E3_CUAU_YAW;
+		float b = Rampa(t, 0.3f, 3.0f);
+		rigCuau.p[BRAZO_D].rot.x = glm::mix(-35.0f, -80.0f, b);
+		rigCuau.p[ANTEBRAZO_D].rot.y = glm::mix(75.0f, 80.0f, b);
 		rigCuau.p[C_CABEZA].rot.x = -30.0f * b;                        // mira hacia arriba
-		rigCuau.luces = pulso; macMezcla = b;
+		rigCuau.luces = pulso; macMezcla = 1.0f;
 		animSierras = (t > 3.0f);
 		break; }
 
-	case 4: {   // sprint esquivando: mallas de pose + barrido de los SENTINEL
+	case 4: {   // CUAU corre hacia la camara; cada tecla (<- ->) lanza UN esquive hacia ese lado de la pantalla
 		cuauVisible = true; for (int i = 0; i < 3; i++) sentVis[i] = true;
-		posSentinel = glm::vec3(4.0f, 0.0f, 2.0f);
+		posSentinel = E4_SENT;
 		animScarface = true;                                           // Animation() avanza tScar: barrido, destello y retroceso
-		bool corre = (fase == F_ANIMA);
-		if (corre) { tzig += dt; avance += 2.6f * dt; }
-		posCuau = glm::vec3(4.0f, 0.0f, 29.0f - avance);
-		if (corre) {   // ANIMACION 5 (compleja): zigzag con saltos, giro suavizado hacia la velocidad e inclinacion
-			cuauOffset = glm::vec3(6.0f * sin(2.0f * tzig), fabs(sin(4.0f * tzig)) * 1.2f, 0.0f);
-			float objetivo = glm::degrees(atan2(12.0f * cos(2.0f * tzig), -4.0f));
-			float dif = fmod(objetivo - cuauYaw + 540.0f, 360.0f) - 180.0f;
-			cuauYaw += dif * std::min(1.0f, dt * 10.0f);
-			cuauTilt = 15.0f * cos(2.0f * tzig);
-		} else { cuauOffset = glm::vec3(0.0f); cuauTilt = 0.0f; }
+		glm::vec3 ruta = E4_FIN - E4_INICIO; ruta.y = 0.0f;
+		float largo = glm::length(ruta); glm::vec3 dirAv = ruta / largo;
+		glm::vec3 vista = ESC[4].mira - ESC[4].cam;
+		glm::vec3 derCam = glm::normalize(glm::vec3(-vista.z, 0.0f, vista.x));   // derecha de la pantalla, sobre el piso
+		static const float lado[3] = { -1.0f, 1.0f, -1.0f };                     // <- : izquierda de la pantalla, -> : derecha
+		const float T = DurAnim(4);
+		float u = (fase == F_ANIMA) ? Clamp01(tAnim / T) : 0.0f;                 // avance del esquive actual
+		int k = std::min(pasoEsq, 2);
+		float adelante = (std::min(pasoEsq, 3) + u) * (largo / 3.0f);            // cada esquive avanza un tercio del recorrido
+		float lat = lado[k] * 4.0f * sin(3.14159f * u);                          // se desplaza 4 unidades y regresa a la linea
+		glm::vec3 dirLat = derCam * lado[k];
+		glm::vec3 base = E4_INICIO + dirAv * adelante;
+		posCuau = glm::vec3(base.x, AlturaPiso4(base.x), base.z);
+		cuauOffset = derCam * lat + glm::vec3(0.0f, 1.6f * sin(3.14159f * u), 0.0f);   // salto
+		// ANIMACION 5 (compleja): giro suavizado hacia la velocidad (avance + lateral) e inclinacion hacia el lado del esquive
+		glm::vec3 vel = dirAv * (largo / 3.0f / T) + dirLat * (4.0f * 3.14159f / T * cos(3.14159f * u)) * (fase == F_ANIMA ? 1.0f : 0.0f);
+		float objetivo = glm::degrees(atan2(vel.x, vel.z));
+		float dif = fmod(objetivo - cuauYaw + 540.0f, 360.0f) - 180.0f;
+		cuauYaw += dif * std::min(1.0f, dt * 10.0f);
+		float yawR = glm::radians(cuauYaw);
+		float haciaDer = glm::dot(dirLat, glm::vec3(-cos(yawR), 0.0f, sin(yawR)));    // >0: el esquive va hacia la derecha del personaje
+		cuauTilt = 18.0f * sin(3.14159f * u) * (haciaDer > 0.0f ? 1.0f : -1.0f);
 		break; }
 
-	case 5: EscenaAzote(t, 0); rigCuau.luces = pulso; break;
-	case 7: EscenaAzote(t, 2); rigCuau.luces = pulso; break;
+	case 5: EscenaAzote(t, 0, E5_SENT, E5_SENT_YAW, E5_CUAU, E5_CUAU_YAW); rigCuau.luces = pulso; break;
+	case 7: EscenaAzote(t, 2, E7_SENT, E7_SENT_YAW, E7_CUAU, E7_CUAU_YAW); rigCuau.luces = pulso; break;
 
 	case 6: {   // puñetazo con el brazo izquierdo
-		cuauVisible = true; sentVis[1] = true; sentPos[1] = SG; sentYaw[1] = 0.0f;
-		cuauYawR = 180.0f;
-		cuauPosR = glm::vec3(SG.x, 0.0f, SG.z + 8.5f - 6.2f * Rampa(t, 0.0f, 1.0f));   // se acerca a ~2.3: el puño alcanza la cara
+		cuauVisible = true; sentVis[1] = true; sentPos[1] = E6_SENT; sentYaw[1] = E5_SENT_YAW;
+		cuauYawR = E6_CUAU_YAW;
+		glm::vec3 adelante(sin(glm::radians(E6_CUAU_YAW)), 0.0f, cos(glm::radians(E6_CUAU_YAW)));
+		cuauPosR = E6_CUAU - adelante * (6.2f * (1.0f - Rampa(t, 0.0f, 1.0f)));            // camina hacia donde mira y se detiene a golpear
 		if (t < 1.0f) PoseCaminar(rigCuau, tReloj, 22.0f, 7.0f);
 		float w = Rampa(t, 1.0f, 1.3f), h = Rampa(t, 1.3f, 1.5f), r = Rampa(t, 2.0f, 3.0f);
 		float brazo = glm::mix(glm::mix(0.0f, 25.0f, w), -90.0f, h);   // hacia atras (se prepara) -> hacia delante (golpea)
@@ -525,17 +613,54 @@ static void ActualizarRelato(float dt)
 
 	case 8: {   // victoria: 3 SENTINEL derribados, sus railguns en el piso, CUAU alza la MAC
 		cuauVisible = true; macVisible = true;
-		cuauPosR = SG + glm::vec3(0.0f, 0.0f, 7.0f); cuauYawR = 0.0f;
+		cuauPosR = E8_CUAU; cuauYawR = E8_CUAU_YAW;
 		float a = Rampa(t, 0.3f, 2.0f);
 		rigCuau.p[BRAZO_D].rot = glm::vec3(-150.0f * a, 0.0f, 78.0f);
 		rigCuau.p[ANTEBRAZO_D].rot.y = 20.0f * a;
 		rigCuau.p[C_CABEZA].rot.x = -28.0f * a;
 		rigCuau.p[TORSO].rot.x = -8.0f * a;
 		rigCuau.luces = pulso; animSierras = true;
-		static const glm::vec3 off[3] = { glm::vec3(-6.0f, 0.0f, 1.0f), glm::vec3(0.5f, 0.0f, -1.0f), glm::vec3(6.0f, 0.0f, 1.0f) };
-		static const float yaw[3] = { 25.0f, -10.0f, -30.0f };
-		for (int i = 0; i < 3; i++) { sentVis[i] = true; sentPos[i] = SG + off[i]; sentYaw[i] = yaw[i]; sentCaida[i] = 1.0f; sentRail[i] = false; }
+		for (int i = 0; i < 3; i++) { sentVis[i] = true; sentPos[i] = E8_SENT[i]; sentYaw[i] = E8_SENT_YAW[i]; sentCaida[i] = 1.0f; sentRail[i] = false; }
 		break; }
+	}
+
+	// ---- ajustes del modo edicion (F3): se suman a la posicion y al giro que calculo la escena ----
+	if (escena == 4) {   // sprint: las mallas se colocan con posCuau / posSentinel (el SENTINEL 1 mueve al grupo completo)
+		posCuau += glm::vec3(edOff[4][0]);
+		posSentinel += glm::vec3(edOff[4][1]);
+	} else {
+		cuauPosR += glm::vec3(edOff[escena][0]); cuauYawR += edOff[escena][0].w;
+		for (int i = 0; i < 3; i++) { sentPos[i] += glm::vec3(edOff[escena][1 + i]); sentYaw[i] += edOff[escena][1 + i].w; }
+	}
+}
+
+static bool ActorVisible(int a)
+{
+	if (a == 0) return cuauVisible;
+	if (a == 4) return obrerosVisible;
+	return sentVis[a - 1];
+}
+static void SiguienteActor()
+{
+	for (int k = 1; k <= 5; k++) { int a = (edSel + k) % 5; if (ActorVisible(a)) { edSel = a; break; } }
+	std::printf("Editando: %s\n", NOM_ACTOR[edSel]);
+}
+// Imprime posiciones absolutas y ajustes de la escena actual, para pegarlos en el chat
+static void ImprimirAjustes()
+{
+	GuardarAjustes();
+	std::printf("---- ESCENA %d ---- (todos los ajustes quedaron guardados en ajustes_escenas.txt)\n", escena);
+	for (int a = 0; a < 5; a++)
+	{
+		if (!ActorVisible(a)) continue;
+		glm::vec3 pos(0.0f); float yaw = 0.0f;
+		if (a == 0) { pos = (escena == 4) ? posCuau : cuauPosR; yaw = (escena == 4) ? cuauYaw : cuauYawR; }
+		else if (a == 4) pos = ZP;
+		else { pos = (escena == 4) ? posSentinel : sentPos[a - 1]; yaw = (escena == 4) ? 0.0f : sentYaw[a - 1]; }
+		const glm::vec4& o = edOff[escena][a];
+		std::printf("%-11s posicion (%.2f, %.2f, %.2f)  giro %.1f   | ajuste (%+.2f, %+.2f, %+.2f, giro %+.1f)%s\n", NOM_ACTOR[a],
+			pos.x + (a == 4 ? o.x : 0), pos.y + (a == 4 ? o.y : 0), pos.z + (a == 4 ? o.z : 0), yaw, o.x, o.y, o.z, o.w,
+			(escena == 4 && a >= 1 && a <= 3) ? "  (en esta escena el SENTINEL 1 mueve al grupo)" : "");
 	}
 }
 
@@ -636,7 +761,7 @@ static void DibujarRelato(Shader& sh, const glm::mat4* mSent, const float* retro
 		static const glm::vec2 pts[6] = { {-2.6f,-2.6f}, {-2.6f,0.0f}, {-2.6f,2.6f}, {2.6f,-2.6f}, {2.6f,0.0f}, {2.6f,2.6f} };
 		for (int i = 0; i < 6; i++)
 		{
-			glm::mat4 m = glm::translate(glm::mat4(1.0f), ZP + glm::vec3(pts[i].x, 0.0f, pts[i].y));
+			glm::mat4 m = glm::translate(glm::mat4(1.0f), ZP + glm::vec3(edOff[escena][4]) + glm::vec3(pts[i].x, 0.0f, pts[i].y));
 			m = glm::rotate(m, atan2(-pts[i].x, -pts[i].y), Ejy);                // mira hacia CUAU
 			Rig& ob = rigObrero[i % 2];
 			ob.p[OB_BRAZO].rot.x = AnguloMartillo(tGolpe - i * 0.08f);
@@ -670,9 +795,9 @@ static void DibujarRelato(Shader& sh, const glm::mat4* mSent, const float* retro
 	// ---- MAC: en la mano de CUAU (el eje de la maza continua el antebrazo) o, al inicio de la escena 3, en el suelo ----
 	if (macVisible)
 	{
-		glm::mat4 m = rigCuau.M[ANTEBRAZO_D] * glm::translate(glm::mat4(1.0f), glm::vec3(-3.7f, 0.0f, 0.0f))
+		glm::mat4 m = rigCuau.M[ANTEBRAZO_D] * glm::translate(glm::mat4(1.0f), MAC_MANO)
 			* glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), Ejz)
-			* glm::translate(glm::mat4(1.0f), glm::vec3(-MAC_CENTRO.x, 2.5f, 0.0f));          // empuña a la altura y = -2.5 del mango
+			* glm::translate(glm::mat4(1.0f), glm::vec3(-MAC_CENTRO.x, MAC_AGARRE_Y, 0.0f));   // el puño sujeta el mango a y = -MAC_AGARRE_Y
 		if (macMezcla < 1.0f)
 		{
 			glm::mat4 Bc = glm::rotate(glm::translate(glm::mat4(1.0f), cuauPosR), glm::radians(cuauYawR), Ejy);
@@ -781,6 +906,7 @@ int main(int argc, char** argv)
 	std::vector<TeclaAuto> teclasAuto;
 	std::string fotoRuta; float fotoT = -1.0f; bool camForzada = false;
 	IniciarEscena(0);                                  // el relato empieza en la introduccion (--escena N lo cambia)
+	CargarAjustes();
 	for (int i = 1; i < argc; i++)
 	{
 		std::string a = argv[i];
@@ -802,7 +928,9 @@ int main(int argc, char** argv)
 				if (c != std::string::npos)
 				{
 					std::string k = par.substr(c + 1);
-					int key = (k == "SPACE") ? GLFW_KEY_SPACE : (k == "ENTER") ? GLFW_KEY_ENTER : (k == "LEFT") ? GLFW_KEY_LEFT : GLFW_KEY_RIGHT;
+					int key = (k == "SPACE") ? GLFW_KEY_SPACE : (k == "ENTER") ? GLFW_KEY_ENTER : (k == "LEFT") ? GLFW_KEY_LEFT :
+					          (k == "RIGHT") ? GLFW_KEY_RIGHT : (k == "PGDN") ? GLFW_KEY_PAGE_DOWN : (k == "PGUP") ? GLFW_KEY_PAGE_UP :
+					          (k == "TAB") ? GLFW_KEY_TAB : (k == "F3") ? GLFW_KEY_F3 : (k.size() == 1) ? (int)k[0] : GLFW_KEY_RIGHT;
 					teclasAuto.push_back({ (float)atof(par.substr(0, c).c_str()), key, false });
 				}
 				p = e + 1;
@@ -824,7 +952,7 @@ int main(int argc, char** argv)
 		if (modoRelato)
 		{
 			ActualizarRelato(deltaTime);
-			for (TeclaAuto& k : teclasAuto) if (!k.hecha && tReloj >= k.t) { k.hecha = true; ProcesarTeclaRelato(k.key); }
+			for (TeclaAuto& k : teclasAuto) if (!k.hecha && tReloj >= k.t) { k.hecha = true; KeyCallback(window, k.key, 0, GLFW_PRESS, 0); KeyCallback(window, k.key, 0, GLFW_RELEASE, 0); }
 			if (cerrarRelato) glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 		const bool vistaRelato = modoRelato && !camLibre;
@@ -856,12 +984,12 @@ int main(int argc, char** argv)
 		{
 			// la formacion de los 3 SENTINEL gira alrededor del centro del grupo
 			float gy = glm::radians(yawGrupo[1]);
-			glm::vec3 o = offSentinel[i];
+			glm::vec3 o = modoRelato ? offLinea[i] : offSentinel[i];
 			glm::vec3 oGirado(o.x * cos(gy) + o.z * sin(gy), o.y, -o.x * sin(gy) + o.z * cos(gy));
 			glm::vec3 pos = posSentinel + oGirado;
 			glm::vec3 d = posCuau - pos;
 			float yawBase = glm::degrees(atan2(d.x, d.z));  // el canon de sentinel_aim apunta a +Z local
-			float barrido = animScarface ? 60.0f * sin(1.5f * tScar + i * 0.9f) : 0.0f;
+			float barrido = animScarface ? (modoRelato ? 14.0f : 60.0f) * sin(1.5f * tScar + i * 0.9f) : 0.0f;   // en el relato barren poco: apuntan a CUAU
 			float ciclo = fmod(tScar + i * 0.15f, 0.45f);
 			destello[i] = animScarface && ciclo < 0.07f;
 			retro[i] = (animScarface && ciclo < 0.12f) ? (1.0f - ciclo / 0.12f) * RETROCESO_MAX : 0.0f;
@@ -1003,6 +1131,7 @@ int main(int argc, char** argv)
 		glfwSwapBuffers(window);
 	}
 
+	if (edSucio) GuardarAjustes();
 	glfwTerminate();
 	return 0;
 }
@@ -1017,7 +1146,21 @@ void DoMovement()
 		if (keys[GLFW_KEY_A] || keys[GLFW_KEY_LEFT])  camera.ProcessKeyboard(LEFT, deltaTime);
 		if (keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT]) camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
-	if (modoRelato) return;     // mover / girar / escalar grupos es del banco de pruebas
+	if (modoRelato)
+	{
+		if (modoEdicion)   // J/L = X, I/K = Z, U/O = Y (+ / -), Q/E = girar: mueven al actor seleccionado (TAB)
+		{
+			float v = 6.0f * deltaTime;
+			glm::vec4& o = edOff[escena][edSel];
+			if (keys[GLFW_KEY_J]) o.x -= v;   if (keys[GLFW_KEY_L]) o.x += v;
+			if (keys[GLFW_KEY_I]) o.z -= v;   if (keys[GLFW_KEY_K]) o.z += v;
+			if (keys[GLFW_KEY_U]) o.y += v;   if (keys[GLFW_KEY_O]) o.y -= v;
+			if (keys[GLFW_KEY_Q]) o.w -= 60.0f * deltaTime;
+			if (keys[GLFW_KEY_E]) o.w += 60.0f * deltaTime;
+			if (keys[GLFW_KEY_J] || keys[GLFW_KEY_L] || keys[GLFW_KEY_I] || keys[GLFW_KEY_K] || keys[GLFW_KEY_U] || keys[GLFW_KEY_O] || keys[GLFW_KEY_Q] || keys[GLFW_KEY_E]) edSucio = true;
+		}
+		return;     // en el relato el resto es del banco de pruebas
+	}
 
 	// Mover el grupo seleccionado (TAB cambia): J/L = X, I/K = Z, U/O = Y
 	float v = 10.0f * deltaTime;
@@ -1058,13 +1201,23 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 			std::printf("Camara libre: %s\n", camLibre ? "SI" : "NO");
 		}
 		if (key == GLFW_KEY_F2) { modoRelato = !modoRelato; std::printf("Modo: %s\n", modoRelato ? "RELATO" : "BANCO DE PRUEBAS"); }
-		if (key == GLFW_KEY_LEFT_BRACKET)  IrAEscena(escena - 1);
-		if (key == GLFW_KEY_RIGHT_BRACKET) IrAEscena(escena + 1);
+		// escena anterior / siguiente: AvPag y RePag (iguales en cualquier teclado) o las teclas a la derecha de la P ([ y ] en teclado ingles)
+		if (key == GLFW_KEY_PAGE_UP   || key == GLFW_KEY_LEFT_BRACKET)  IrAEscena(escena - 1);
+		if (key == GLFW_KEY_PAGE_DOWN || key == GLFW_KEY_RIGHT_BRACKET) IrAEscena(escena + 1);
 		if (key == GLFW_KEY_C) {    // imprime el punto de camara listo para pegar en la tabla ESC[]
 			glm::vec3 p = (camLibre || !modoRelato) ? camera.GetPosition() : camPos;
 			glm::vec3 m = (camLibre || !modoRelato) ? camera.GetPosition() + camera.GetFront() * 10.0f : camMira;
 			std::printf("glm::vec3(%.1f, %.1f, %.1f), glm::vec3(%.1f, %.1f, %.1f)\n", p.x, p.y, p.z, m.x, m.y, m.z);
 		}
+
+		if (key == GLFW_KEY_F3 && modoRelato) {
+			modoEdicion = !modoEdicion;
+			if (modoEdicion) {
+				if (!ActorVisible(edSel)) SiguienteActor();
+				std::printf("MODO EDICION: TAB elige actor | J L (x)  I K (z)  U O (altura)  Q E (giro) | P imprime | C imprime camara | F1 camara libre | [ ] cambian de escena\nEditando: %s\n", NOM_ACTOR[edSel]);
+			} else { GuardarAjustes(); std::printf("Modo edicion: NO (ajustes guardados)\n"); }
+		}
+		if (modoRelato && modoEdicion) { if (key == GLFW_KEY_TAB) SiguienteActor(); if (key == GLFW_KEY_P) ImprimirAjustes(); }
 
 		if (modoRelato) { if (!camLibre) ProcesarTeclaRelato(key); }
 		else {
