@@ -30,16 +30,16 @@ const GLuint WIDTH = 1280, HEIGHT = 720;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 // ---------------------------------------------------------------------
-//  AJUSTES (lo que vas a tocar para acomodar la escena)
+//  AJUSTES de la escena
 // ---------------------------------------------------------------------
 const float PLAZA_ESCALA = 1.0f;
 // Escalas iniciales (se cambian en vivo con Z / X sobre el grupo seleccionado)
 float escGrupo[3] = { 0.35f, 0.35f, 0.35f };   // 0 CUAU, 1 SENTINEL, 2 MAC
 
-// Angulo (grados) para que el CUAU mire hacia donde corre. Si corre de espaldas: 180.
+// Angulo (grados) para que el CUAU mire hacia donde corre. Con 180 el modelo correria de espaldas.
 const float CUAU_YAW_OFFSET = 0.0f;
 
-// Boca del railgun en coordenadas locales del SENTINEL (OBJ). Ajustala viendo el destello.
+// Boca del railgun en coordenadas locales del SENTINEL (OBJ). Se calibra observando el destello.
 // (el railgun_aim.obj ocupa x -1.76..-0.53, y 11.7..13.82, z 1.2..8.85: la boca es el extremo +Z)
 glm::vec3 bocaLocal(-1.15f, 12.8f, 8.9f);
 const float RETROCESO_MAX = 0.8f;
@@ -148,7 +148,7 @@ const PiezaDef DEF_SENT[N_SENT] = {
 	{ "railgun",         ANTEBRAZO_D,   glm::vec3(-3.70f,  0.00f,  0.00f), false },   // en la mano derecha (centro del arma = mano)
 };
 
-// El railgun se mueve con la mano. Su eje largo es Z. Si el cañon apunta hacia atras, poner 180.
+// El railgun se mueve con la mano. Su eje largo es Z. Con 180 grados el cañon apuntaria hacia atras.
 const float RAILGUN_GIRO_Y = 0.0f;   // el perfil del railgun del rig coincide con railgun_aim.obj (apunta a +Z): sin giro
 
 // Obrero minimalista (unidades = metros, 1.8 de alto): cuerpo + brazo derecho con el martillo en la mano (pivote en el hombro)
@@ -239,7 +239,7 @@ static void SujetarRailgun(Rig& r)
 	r.p[S_RAILGUN].rot = glm::vec3(0.0f, RAILGUN_GIRO_Y, -r.p[BRAZO_D].rot.z);
 }
 
-// Ciclo de caminata para las 12 piezas comunes (prueba de pivotes; las animaciones del relato iran sobre esta misma base)
+// Ciclo de caminata para las 12 piezas comunes (prueba de pivotes; es la base de las caminatas del relato)
 static void PoseCaminar(Rig& r, float t, float amp, float frec)
 {
 	float s = sin(frec * t), c = cos(frec * t);
@@ -255,7 +255,7 @@ static void PoseCaminar(Rig& r, float t, float amp, float frec)
 }
 
 // =====================================================================
-//  RELATO: MAQUINA DE ESTADOS (10 escenas)   (estilo del ejemplo del profe: un entero de estado + Animation() por cuadro)
+//  RELATO: MAQUINA DE ESTADOS (10 escenas)   (misma idea del ejemplo de maquina de estados: un entero de estado + Animation() por cuadro)
 //  Cada escena recorre las fases:  TEXTO -> CAMARA -> ESPERA (tecla de accion) -> ANIMA -> FIN (Enter)
 //  En las escenas 0 y 9 la camara viaja primero y el texto sale despues.
 //  Teclas: Enter avanza, Espacio / flechas = accion de la escena. Modo desarrollador: F1 camara libre, F2 relato/banco de pruebas,
@@ -271,7 +271,7 @@ struct Escena
 };
 
 // Puntos de la plaza (de plaza.obj: el suelo es plano en y = 0)
-// ---- Ajustes aprobados por Santiago (2026-11-09), tomados del modo edicion ----
+// ---- Posiciones y giros finales de cada escena (obtenidos con el modo edicion, F3) ----
 const glm::vec3 ZP(-12.72f, 1.90f, 8.31f);          // escena 1: centro del corro de obreros (sobre la plataforma de los vestigios, suelo y = 1.85)
 const glm::vec3 E1_CUAU(-12.91f, 1.61f, 5.10f);     // escena 1: pies de CUAU acostado (su cabeza queda hacia +z)
 const float     E1_CUAU_YAW = -179.1f;
@@ -280,7 +280,7 @@ const float     E3_CUAU_YAW = 125.0f;
 const float     E2_Z_OFF[3] = { 5.31f, 4.81f, 4.40f };   // escena 2: desplazamiento en z de cada SENTINEL (la fila queda mas cerca de la puerta)
 const glm::vec3 E4_INICIO(-11.71f, 0.0f, 3.62f);    // escena 4: CUAU sale de la pirámide ...
 const glm::vec3 E4_FIN(7.0f, 0.0f, 5.2f);           // ... y corre hacia la camara, frente a la fila de SENTINEL
-const glm::vec3 E4_SENT(13.71f, 0.28f, 1.31f);      // escena 4: centro de la fila de SENTINEL (a lo largo de z), ya con tu ajuste posterior
+const glm::vec3 E4_SENT(13.71f, 0.28f, 1.31f);      // escena 4: centro de la fila de SENTINEL (a lo largo de z)
 const glm::vec3 E5_SENT(16.13f, 0.0f, 5.21f);       // escenas 5 a 7: el SENTINEL que cae
 const float     E5_SENT_YAW = -94.1f;
 const glm::vec3 E5_CUAU(13.22f, 0.60f, 2.69f);      // escenas 5 y 7: donde se detiene CUAU para el azote
@@ -288,7 +288,7 @@ const float     E5_CUAU_YAW = 64.4f;
 const glm::vec3 E6_SENT(16.63f, 0.0f, 2.01f);       // escena 6 (punetazo): el SENTINEL (mira hacia E5_SENT_YAW) ...
 const glm::vec3 E6_CUAU(14.89f, 0.50f, 0.80f);      // ... y donde termina CUAU
 const float     E6_CUAU_YAW = 73.2f;
-const glm::vec3 E7_SENT(22.65f, 0.0f, -1.49f);      // escena 7 (azote final): el SENTINEL un poco mas atras (+1.40, +0.41 respecto a 21.25, -1.90)
+const glm::vec3 E7_SENT(22.65f, 0.0f, -1.49f);      // escena 7 (azote final): el SENTINEL un poco mas atras
 const float     E7_SENT_YAW = -151.2f;
 const glm::vec3 E7_CUAU(18.82f, 0.60f, -3.42f);
 const float     E7_CUAU_YAW = 45.4f;
@@ -645,7 +645,7 @@ static void SiguienteActor()
 	for (int k = 1; k <= 5; k++) { int a = (edSel + k) % 5; if (ActorVisible(a)) { edSel = a; break; } }
 	std::printf("Editando: %s\n", NOM_ACTOR[edSel]);
 }
-// Imprime posiciones absolutas y ajustes de la escena actual, para pegarlos en el chat
+// Imprime posiciones absolutas y ajustes de la escena actual, y copiarlos a las constantes de arriba
 static void ImprimirAjustes()
 {
 	GuardarAjustes();
@@ -1205,7 +1205,7 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mode
 		// escena anterior / siguiente: AvPag y RePag (iguales en cualquier teclado) o las teclas a la derecha de la P ([ y ] en teclado ingles)
 		if (key == GLFW_KEY_PAGE_UP   || key == GLFW_KEY_LEFT_BRACKET)  IrAEscena(escena - 1);
 		if (key == GLFW_KEY_PAGE_DOWN || key == GLFW_KEY_RIGHT_BRACKET) IrAEscena(escena + 1);
-		if (key == GLFW_KEY_C) {    // imprime el punto de camara listo para pegar en la tabla ESC[]
+		if (key == GLFW_KEY_C) {    // imprime el punto de camara con el formato de la tabla ESC[]
 			glm::vec3 p = (camLibre || !modoRelato) ? camera.GetPosition() : camPos;
 			glm::vec3 m = (camLibre || !modoRelato) ? camera.GetPosition() + camera.GetFront() * 10.0f : camMira;
 			std::printf("glm::vec3(%.1f, %.1f, %.1f), glm::vec3(%.1f, %.1f, %.1f)\n", p.x, p.y, p.z, m.x, m.y, m.z);
@@ -1285,7 +1285,7 @@ void Animation()
 
 		float x = 6.0f * sin(2.0f * t);          // zigzag lateral
 		float z = 4.0f * sin(0.7f * t);          // avance lento adelante/atras
-		float salto = fabs(sin(4.0f * t)) * 1.2f; // brincos como esquivando balas
+		float salto = fabs(sin(4.0f * t)) * 1.2f; // brincos al esquivar
 		cuauOffset = glm::vec3(x, salto, z);
 
 		float vx = 12.0f * cos(2.0f * t);
