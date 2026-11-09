@@ -1,0 +1,23 @@
+%% Diagrama de flujo del software (Mermaid editable). Equivale a flujo_programa.png.
+flowchart TD
+    A([INICIO]) --> B[1. Iniciar GLFW, crear ventana 1280x720 y cargar OpenGL con GLAD]
+    B --> C[2. Compilar shaders: lighting.vs/.frag y hud.vs/.frag]
+    C --> D[3. Cargar modelos con Assimp: plaza, mallas de pose y rigs por partes CUAU 16, SENTINEL 13, obreros]
+    D --> E[4. Crear HUD, leer linea de comandos y ajustes_escenas.txt, IniciarEscena 0]
+    E --> F
+    subgraph CICLO [Ciclo principal - un cuadro]
+        F[5. Calcular deltaTime y procesar eventos teclado y raton]
+        F --> G[6. Animation y ActualizarRelato: avanzar fase, calcular poses y posiciones]
+        G --> H[7. Matrices de los SENTINEL barrido y posicion de la luz de destello]
+        H --> I[8. Enviar uniformes camara, luces, emissive, brillo y dibujar la plaza]
+        I --> J[9. DibujarRelato: obreros, CUAU, MAC y SENTINEL de la escena]
+        J --> K[10. DibujarHUDRelato: recuadro de texto o de accion con mezcla alfa]
+        K --> L{11. Opcion --foto?}
+        L -- si --> M[Guardar captura PNG y salir del ciclo]
+        L -- no --> N[12. Intercambiar buffers]
+    end
+    N --> O{Cerrar? Esc, ventana o Enter final}
+    O -- no --> F
+    O -- si --> P[Guardar ajustes pendientes y liberar GLFW]
+    M --> P
+    P --> Q([FIN])

@@ -1,0 +1,18 @@
+%% Maquina de estados del relato (Mermaid editable). Equivale a maquina_de_estados.png.
+%% Cada escena recorre estas fases; el estado vive en la variable `fase` (enum Fase) de main.cpp.
+stateDiagram-v2
+    [*] --> TEXTO: escenas 1 a 8
+    [*] --> CAMARA: escenas 0 y 9 (textoDespues)
+    TEXTO --> CAMARA: Enter en la ultima pagina
+    TEXTO --> FIN: escenas 0 y 9, ultima pagina
+    CAMARA --> TEXTO: escenas 0 y 9, la camara llego
+    CAMARA --> ESPERA: la camara llego al destino
+    CAMARA --> ANIMA: escena 2 (automatica)
+    ESPERA --> ESPERA: escena 1, martillazo (Espacio) 0 a 3
+    ESPERA --> ESPERA: escena 4, flecha incorrecta (aviso)
+    ESPERA --> ANIMA: tecla de la escena (Espacio, o flecha correcta en la 4)
+    ANIMA --> ESPERA: escena 4, falta algun esquive (pasoEsq menor que 3)
+    ANIMA --> FIN: termina DurAnim(escena)
+    FIN --> TEXTO: Enter, IniciarEscena(i + 1) (escenas 1 a 8)
+    FIN --> CAMARA: Enter, IniciarEscena(9) (textoDespues)
+    FIN --> [*]: escena 9, Enter cierra el programa

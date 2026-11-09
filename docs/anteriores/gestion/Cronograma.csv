@@ -1,0 +1,17 @@
+ID,Actividad,Tipo,Inicio,Fin,Duracion_dias,Estado,Responsable,Evidencia_o_dependencia
+H01,Planeación original,Historial pendiente,,,,Pendiente de fechas,Pendiente,Sin registro del equipo
+H02,Modelado del escenario y personajes,Historial pendiente,,,,Pendiente de fechas,Pendiente,Archivos presentes no acreditan duración
+H03,Programación base,Historial pendiente,,,,Pendiente de fechas,Pendiente,Commit 3563e24 es evidencia parcial de incorporación
+H04,Integración de recursos,Historial pendiente,,,,Pendiente de fechas,Pendiente,Commits 3563e24 y 36edb93
+H05,Programación de animaciones,Historial pendiente,,,,Pendiente de fechas,Pendiente,Commit 36edb93 no acredita inicio ni conclusión
+H06,Pruebas previas del equipo,Historial pendiente,,,,Pendiente de evidencia,Pendiente,Sin resultados proporcionados
+P01,Revisar planeación e inventario,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,Ventana de revisión propuesta
+P02,Revisar modelado y recursos,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,Verificar rutas y capturas equivalentes
+P03,Revisar programación e integración,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,No implica cambios de fuentes autorizados en esta tarea
+P04,Revisar animaciones,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,Contrastar fórmulas y controles
+P05,Ejecutar pruebas y reunir evidencias,Propuesta,2026-11-07,2026-11-08,1,Por confirmar,Pendiente,Equipo con entorno gráfico disponible
+P06,Documentación y comparativa,Propuesta,2026-11-06,2026-11-08,2,Por confirmar,Pendiente,Requiere datos académicos y capturas
+P07,Preparar presentación final,Propuesta,2026-11-08,2026-11-09,1,Por confirmar,Pendiente,Versión revisada y grabación
+M01,Borrador,Hito previsto,2026-11-07,2026-11-07,0,Previsto por el equipo,Pendiente,Sábado
+M02,Versión final y grabación,Hito previsto,2026-11-08,2026-11-08,0,Previsto por el equipo,Pendiente,Domingo
+M03,Entrega prevista,Hito previsto,2026-11-09,2026-11-09,0,Previsto por el equipo,Pendiente,Lunes

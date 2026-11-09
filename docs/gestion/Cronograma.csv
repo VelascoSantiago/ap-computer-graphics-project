@@ -1,17 +1,10 @@
-ID,Actividad,Tipo,Inicio,Fin,Duracion_dias,Estado,Responsable,Evidencia_o_dependencia
-H01,Planeación original,Historial pendiente,,,,Pendiente de fechas,Pendiente,Sin registro del equipo
-H02,Modelado del escenario y personajes,Historial pendiente,,,,Pendiente de fechas,Pendiente,Archivos presentes no acreditan duración
-H03,Programación base,Historial pendiente,,,,Pendiente de fechas,Pendiente,Commit 3563e24 es evidencia parcial de incorporación
-H04,Integración de recursos,Historial pendiente,,,,Pendiente de fechas,Pendiente,Commits 3563e24 y 36edb93
-H05,Programación de animaciones,Historial pendiente,,,,Pendiente de fechas,Pendiente,Commit 36edb93 no acredita inicio ni conclusión
-H06,Pruebas previas del equipo,Historial pendiente,,,,Pendiente de evidencia,Pendiente,Sin resultados proporcionados
-P01,Revisar planeación e inventario,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,Ventana de revisión propuesta
-P02,Revisar modelado y recursos,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,Verificar rutas y capturas equivalentes
-P03,Revisar programación e integración,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,No implica cambios de fuentes autorizados en esta tarea
-P04,Revisar animaciones,Propuesta,2026-11-06,2026-11-07,1,Por confirmar,Pendiente,Contrastar fórmulas y controles
-P05,Ejecutar pruebas y reunir evidencias,Propuesta,2026-11-07,2026-11-08,1,Por confirmar,Pendiente,Equipo con entorno gráfico disponible
-P06,Documentación y comparativa,Propuesta,2026-11-06,2026-11-08,2,Por confirmar,Pendiente,Requiere datos académicos y capturas
-P07,Preparar presentación final,Propuesta,2026-11-08,2026-11-09,1,Por confirmar,Pendiente,Versión revisada y grabación
-M01,Borrador,Hito previsto,2026-11-07,2026-11-07,0,Previsto por el equipo,Pendiente,Sábado
-M02,Versión final y grabación,Hito previsto,2026-11-08,2026-11-08,0,Previsto por el equipo,Pendiente,Domingo
-M03,Entrega prevista,Hito previsto,2026-11-09,2026-11-09,0,Previsto por el equipo,Pendiente,Lunes
+ID,Actividad,Tipo,Inicio,Fin,Duracion_dias,Fuente_de_la_fecha,Evidencia
+T01,Prototipo,Entrega parcial (teoria),2026-09-29,2026-09-29,0,Calendario de entregas de la clase de teoria,Hito: entrega del 29 de septiembre
+T02,Modelado,Entrega parcial (teoria),2026-09-29,2026-10-13,14,Calendario de entregas de la clase de teoria,Ventana entre las entregas del 29 sep y el 13 oct; archivos .blend de CUAU-68 y SENTINEL
+T03,"Texturizado, color e iluminacion",Entrega parcial (teoria),2026-10-13,2026-10-27,14,Calendario de entregas de la clase de teoria,Ventana entre las entregas del 13 y el 27 oct; materiales y texturas de los modelos
+T04,Animacion,Entrega parcial (teoria),2026-10-27,2026-11-05,9,Calendario de entregas de la clase de teoria,Ventana entre las entregas del 27 oct y el 5 nov
+P01,Integracion en OpenGL (proyecto final),Proyecto final,2026-11-06,2026-11-09,3,Historial de git,Commit e128f2b del 6 nov 08:44 (estructura inicial) y commits del 8 y 9 nov
+P02,Relato interactivo: maquina de estados y HUD,Proyecto final,2026-11-08,2026-11-09,1,Historial de git,Commits d4644c7 (8 nov 22:58) y 99ef023 (9 nov 00:50)
+D01,"Documentacion (manuales, diagramas, Gantt)",Documentacion,2026-11-08,2026-11-09,1,Historial de git,Commit 2caa3f9 (8 nov 17:23) y 0024f94 (9 nov 00:55); manuales actualizados el 9 nov
+D02,Video explicativo y exposicion,Documentacion,2026-11-09,2026-11-09,0,Plan del equipo,[PENDIENTE: confirmar fecha de grabacion]
+E01,Entrega en Classroom,Hito,2026-11-09,2026-11-09,0,Fecha limite indicada por el equipo,Liga del repositorio antes de las 23:59

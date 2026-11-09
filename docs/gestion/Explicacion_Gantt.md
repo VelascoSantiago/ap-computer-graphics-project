@@ -1,34 +1,46 @@
-# Explicación del cronograma
+# Explicación del diagrama de Gantt
 
-El [Gantt editable en Mermaid](Gantt_Proyecto.mmd) organiza una **propuesta de cierre**, no reconstruye el calendario real de desarrollo. El [CSV](Cronograma.csv) conserva también las actividades históricas sin fecha, para que el equipo pueda completarlas sin convertir estimaciones en hechos.
+![Diagrama de Gantt](Gantt_Proyecto.png)
 
-## Evidencia parcial del historial
+Archivos relacionados: [`Gantt_Proyecto.mmd`](Gantt_Proyecto.mmd) (versión editable en Mermaid), [`Cronograma.csv`](Cronograma.csv) (los mismos datos en tabla) y [`../diagramas/generar_diagramas.py`](../diagramas/generar_diagramas.py) (genera la imagen).
 
-Se consultó `git log --format='%h | %aI | %s' -- proyecto_lab` y el resumen de cambios de cada commit. Las marcas siguientes son fechas de autor con zona −06:00; no se interpretan como horas de una sesión de trabajo.
+## 1. Cómo se construyó
 
-| Commit | Registro | Evidencia que aporta | Lo que no permite concluir |
-|---|---|---|---|
-| `3563e24` | 2026-11-05 00:53:39 −06:00 · `proyecto: started` | Incorporación de `proyecto_lab`, plaza, clases y shaders, junto con recursos que después fueron sustituidos. | Fecha inicial de modelado, duración de preparación o pruebas superadas. |
-| `36edb93` | 2026-11-05 23:46:34 −06:00 · `project: animations` | Modificación de `main.cpp` e incorporación de CUAU, SENTINEL, railgun y MAC; retiro de modelos anteriores. | Que todas las animaciones se hayan desarrollado ese día o que se haya concluido la integración visual. |
+El proyecto final se integró y programó en los últimos días antes de la entrega, por lo que **no existe un registro de fechas de trabajo día por día** para todo el proyecto. Para no inventar un historial, el diagrama se apoya en dos fuentes verificables:
 
-No se asignaron fechas históricas de inicio o término a partir de esos registros. También falta conocer si hubo trabajo fuera de Git, importación de modelos ya preparados o cambios no registrados antes de estos commits.
+1. **Las cuatro entregas parciales de la clase de teoría**, que marcan el avance de los modelos y animaciones usados después en OpenGL:
 
-## Lectura de las barras
+   | Entrega | Fecha |
+   |---|---|
+   | Prototipo | 29 de septiembre de 2026 |
+   | Modelado | 13 de octubre de 2026 |
+   | Texturizado, color e iluminación | 27 de octubre de 2026 |
+   | Animación | 5 de noviembre de 2026 |
 
-Las barras del 6 al 8 de noviembre son ventanas propuestas para revisar planeación, recursos, programación, integración, animaciones, pruebas y documentos. No representan que esas actividades originales deban realizarse desde cero ni que ya estén terminadas. Sus duraciones son días naturales de calendario, sin estimación de horas de esfuerzo y sin responsables asignados.
+2. **El historial real de `git`**, para las fases de integración, relato y documentación (6 al 9 de noviembre).
 
-Para actividades con duración se usa intervalo con fin exclusivo: por ejemplo, del 6 al 8 abarca los días 6 y 7. Los hitos tienen duración cero y fecha puntual. No se excluyen fines de semana porque los hitos previstos incluyen sábado y domingo. Las actividades pueden coincidir, pero el diagrama no acredita disponibilidad de personas para ejecutarlas en paralelo.
+## 2. Cómo leerlo
 
-## Hitos proporcionados
+- Cada barra azul va **de una entrega parcial a la siguiente**: representa la *ventana* disponible para esa etapa, no las horas trabajadas. El **Prototipo** es un hito, porque no se conoce su fecha de inicio.
+- Las barras verdes (integración en OpenGL y relato) y naranjas (documentación, video y exposición) corresponden al proyecto final.
+- Los puntos rojos de la línea inferior son los **commits reales**:
 
-| Fecha prevista | Hito | Condición de preparación propuesta |
-|---|---|---|
-| Sábado 7 de noviembre de 2026 | Borrador | Manuales y diagramas disponibles para revisión, con pendientes visibles. |
-| Domingo 8 de noviembre de 2026 | Versión final y grabación | Incorporar correcciones, resultados de pruebas y capturas que el equipo haya reunido. |
-| Lunes 9 de noviembre de 2026 | Entrega prevista | Revisar archivos y requisitos de recepción de la asignatura. |
+  | Fecha | Commits | Qué contienen |
+  |---|---|---|
+  | 6 nov, 08:44 | `e128f2b` | Estructura inicial: plaza, CUAU-68, SENTINEL y MAC con animaciones por código (`main.cpp` de 357 líneas) |
+  | 8 nov, 13:11 | `c4d5933` | CMake raíz y `.gitignore` |
+  | 8 nov, 17:23 | `2caa3f9` | Primera versión de la documentación (PR #1) |
+  | 8 nov, 22:58 | `d4644c7` | Modelos con materiales completos y por partes, máquina de estados del relato, HUD y textos (`main.cpp`: 839 líneas cambiadas) |
+  | 9 nov, 00:50 | `99ef023` | Ajustes de las escenas y de los textos del HUD |
+  | 9 nov, 00:55 | `0024f94` | Integración del PR #1 en `main` |
 
-Las condiciones de preparación son propuestas documentales; el usuario proporcionó los hitos, pero no horarios ni un mecanismo formal de aceptación. No se marcó ninguna barra como `done`.
+## 3. Lectura honesta del calendario
 
-## Datos que faltan
+- El **modelado, el texturizado y la animación** de los personajes se hicieron en el marco de las entregas de teoría; los archivos de Blender son su evidencia, pero no hay fechas por tarea.
+- La **integración en OpenGL, el relato interactivo y la documentación** se concentraron del 6 al 9 de noviembre. Es una limitación de planeación, no un resultado deseable, y se reconoce como tal en las conclusiones del [manual técnico](../Manual_Tecnico.md).
+- El diagrama no pretende acreditar horas ni responsables; los responsables de cada fase quedan pendientes de completar por el equipo.
 
-El equipo debe indicar fechas reales, responsables y evidencia de planeación, modelado, programación, integración y pruebas; confirmar la fecha académica de portada, y precisar el horario y medio de entrega. Al actualizar el CSV deben conservarse separados el historial confirmado y la propuesta. Si se desea representar el historial en el Gantt, hacerlo únicamente después de completar esas fechas.
+## 4. Pendientes de este documento
+
+- **[PENDIENTE]** Responsables de cada fase.
+- **[PENDIENTE]** Fecha de grabación del video y de la exposición oral.

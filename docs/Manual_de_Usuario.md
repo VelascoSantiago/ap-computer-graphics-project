@@ -1,174 +1,412 @@
-# T68 Sci-Fi Tribute
+![Portada de T68 Sci-Fi Tribute](T68_%20Sci-Fi%20Tribute_Cover.png)
 
-**Universidad Nacional Autónoma de México**  
-**Facultad de Ingeniería**  
-Asignatura: Computación Gráfica  
-**Manual de usuario**
+# T68 Sci-Fi Tribute — Manual de usuario
 
-Integrantes: [pendiente]  
-Grupo: [pendiente]  
-Profesor: [pendiente]  
-Fecha de entrega: [pendiente de confirmar por el equipo]
+**Universidad Nacional Autónoma de México · Facultad de Ingeniería**
+Laboratorio de Computación Gráfica · Profesor: Ing. Edén Espinoza Urzúa
+
+Integrantes: **[PENDIENTE: nombres completos del equipo]**
+Grupo: **[PENDIENTE]**
+Fecha de entrega: 9 de noviembre de 2026
+Versión documentada: rama `main`, a partir del commit `0024f94`
+
+---
+
+## Contenido
+
+1. [Introducción](#1-introducción)
+2. [Requisitos](#2-requisitos)
+3. [Instalación y ejecución](#3-instalación-y-ejecución)
+4. [La pantalla](#4-la-pantalla)
+5. [Controles](#5-controles)
+6. [Guía de la historia, escena por escena](#6-guía-de-la-historia-escena-por-escena)
+7. [Las cinco animaciones](#7-las-cinco-animaciones)
+8. [Modo desarrollador (opcional)](#8-modo-desarrollador-opcional)
+9. [Problemas frecuentes](#9-problemas-frecuentes)
+10. [Créditos y recursos](#10-créditos-y-recursos)
+11. [Aviso sobre el contenido](#11-aviso-sobre-el-contenido)
+12. [Glosario](#12-glosario)
+
+---
 
 ## 1. Introducción
 
-T68 Sci-Fi Tribute representa una versión tridimensional de la Plaza de las Tres Culturas de Tlatelolco. El escenario reúne modelos de la iglesia de Santiago, el Edificio Chihuahua, vestigios arqueológicos y una lápida, junto con árboles y mobiliario urbano. La representación permite recorrer el conjunto desde una cámara libre; no sustituye un levantamiento arquitectónico ni ofrece información histórica interactiva.
+**T68 Sci-Fi Tribute** es un *relato gráfico interactivo* en 3D, hecho con OpenGL. Recrea con estilo la **Plaza de las Tres Culturas de Tlatelolco** (Ciudad de México) y la convierte en el escenario de una historia de ciencia ficción: un homenaje respetuoso al **2 de octubre de 1968**.
 
-Dentro de la plaza se integran CUAU-68, tres instancias de SENTINEL y MAC. El usuario puede cambiar su punto de observación, seleccionar uno de estos grupos y desplazarlo. Las animaciones programadas muestran el giro de las sierras de MAC, una secuencia de barrido y disparo de SENTINEL y el movimiento evasivo de CUAU-68. Cada animación tiene una tecla de activación independiente y las tres comienzan habilitadas.
+Las tres épocas de la plaza conviven en la misma escena:
 
-Este manual explica los requisitos, el procedimiento de compilación previsto y los controles identificados en la implementación. Las instrucciones se basan en los archivos de `proyecto_lab`; la instalación y la visualización todavía requieren validación en un equipo con las bibliotecas gráficas disponibles. Los espacios reservados para capturas deberán completarse con imágenes obtenidas de esa ejecución. La consola forma parte del uso del programa: allí se muestran errores de carga, el grupo seleccionado y las coordenadas solicitadas mediante el teclado.
+| Zona | Qué la representa | Qué significa en la historia |
+|---|---|---|
+| Prehispánica | La pirámide escalonada de piedra | Ahí **nace CUAU-68**: desde nuestras raíces, resistimos y defendemos lo nuestro. |
+| Colonial | El Templo de Santiago | De ahí **salen los SENTINEL**: la invasión y la opresión. |
+| Contemporánea | El edificio moderno de concreto y la lápida | Ahí cierra el relato: no olvidamos, ni ahora ni en el futuro. |
+
+**Los personajes**
+
+- **CUAU-68** (*Coraza Unificada de Acción Universitaria*): un mecha guardián construido por estudiantes de la UNAM y del IPN con piezas tomadas de los SENTINEL MX. Su nombre evoca a Cuauhtémoc, el último tlatoani, que defendió Tenochtitlan hasta caer en Tlatelolco en 1521.
+- **MAC** (*Mecanismo Acelerador de Cadena*): el arma de CUAU-68, una maza con tres hojas circulares de obsidiana que giran, en memoria del macuahuitl, el arma de los antiguos mexicas.
+- **SENTINEL MX**: los robots del gobierno, el ejército. Salen en fila del templo, con un railgun en la mano.
+- **Obreros**: estudiantes que martillan para terminar de construir y despertar a CUAU-68. Se distinguen por sus colores: azul y dorado (UNAM), blanco y vino (IPN).
+
+**Cómo se usa.** El relato tiene **10 escenas**. Tú no controlas la cámara ni a los personajes libremente: avanzas con `Enter` y, en cada escena, haces una pequeña acción (por ejemplo, dar martillazos o esquivar con las flechas) para que la historia continúe. Dura aproximadamente de 3 a 5 minutos, según tu ritmo de lectura.
+
+> Los textos del juego aparecen en un recuadro oscuro en la parte baja de la pantalla; las instrucciones de la acción actual, en un recuadro amarillo.
+
+---
 
 ## 2. Requisitos
 
-| Requisito | Motivo y situación |
+| Requisito | Detalle |
 |---|---|
-| Linux con entorno gráfico | Es el entorno descrito por el README raíz, con paquetes de Debian/Ubuntu. No se validó una distribución específica en esta revisión. |
-| Compilador C++17 y compilador C | CMake fija C++17; GLAD y SOIL2 contienen fuentes C. |
-| CMake 3.10 o posterior | Versión mínima declarada en el CMake raíz. |
-| OpenGL y controlador gráfico con GLSL 330 | Los shaders activos requieren `#version 330 core`. El programa no solicita explícitamente esa versión al crear el contexto. |
-| GLFW y Assimp | Se buscan como dependencias externas mediante CMake. Assimp debe exponer `assimp::assimp` y la API BASE_COLOR usada por el código. |
-| GLAD, GLM y SOIL2 del repositorio | Se compilan o incluyen desde `dependencias/`; GLM incluido es 0.9.9.3. |
-| Teclado, ratón y terminal | Permiten recorrer la escena, mover grupos y consultar mensajes. |
-| Recursos completos | Deben conservarse los OBJ, MTL, imágenes y shaders con sus rutas relativas. |
+| Sistema operativo | **Linux** con entorno gráfico (validado en Debian 13). La versión para Windows se describe en la sección 3.2. |
+| Gráficos | GPU y controlador compatibles con **OpenGL 3.3 core** o superior (los shaders usan `#version 330 core`). |
+| Teclado | Obligatorio. El ratón no se usa en el relato. |
+| Espacio | Los modelos y texturas ocupan unas decenas de MB. |
+| Para compilar | Compilador C++17 y C, CMake 3.10 o superior, GLFW 3 y Assimp (ver 3.1). |
 
-No se dispone de mediciones para establecer memoria RAM, VRAM o frecuencia de fotogramas mínimas. Windows y macOS son alternativas pendientes de comprobar: no hay una configuración de Visual Studio validada. En Windows, la creación de enlaces simbólicos de recursos también depende de los permisos del sistema.
+**Equipo en el que se validó este manual**
+
+| Componente | Versión |
+|---|---|
+| Sistema | Debian GNU/Linux 13 (trixie) |
+| GPU / controlador | AMD Radeon 610M (Mesa 25.0.7) |
+| OpenGL | 4.6 (core profile) |
+| CMake · compilador | 3.31.6 · g++ 14.2.0 |
+| GLFW · Assimp | 3.4 · 5.4.3 |
+
+No se midieron requisitos mínimos de memoria ni de fotogramas por segundo en otros equipos; los datos de la tabla corresponden solo al equipo de pruebas.
+
+**Tiempo de arranque:** el programa carga 41 modelos y varias texturas grandes, por lo que la ventana tarda unos **8 segundos** en mostrar la primera imagen y usa cerca de **196 MB** de RAM (medido en el equipo de pruebas). Espera sin cerrarlo.
+
+---
 
 ## 3. Instalación y ejecución
 
-**Procedimiento previsto para Debian/Ubuntu; pendiente de validación completa.** En el entorno de esta revisión, `cmake --version` falló porque CMake no estaba disponible. No se compiló ni ejecutó el programa.
+### 3.1 Linux (Debian / Ubuntu)
 
-1. Instalar las herramientas y bibliotecas. La lista del README se complementa con Assimp, requerido por el CMake actual:
+**Paso 1. Instalar las herramientas y bibliotecas**
 
-   ```bash
-   sudo apt update
-   sudo apt install build-essential cmake git libgl1-mesa-dev libx11-dev \
-       libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
-       libglfw3-dev libassimp-dev
-   ```
+```bash
+sudo apt update
+sudo apt install build-essential cmake git libgl1-mesa-dev libx11-dev \
+    libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+    libglfw3-dev libassimp-dev
+```
 
-2. Obtener el repositorio y entrar a su raíz:
+**Paso 2. Descargar el proyecto**
 
-   ```bash
-   git clone https://github.com/VelascoSantiago/ap-computer-graphics.git
-   cd ap-computer-graphics
-   ```
+```bash
+git clone https://github.com/VelascoSantiago/ap-computer-graphics-project.git
+cd ap-computer-graphics-project
+```
 
-3. Configurar desde la raíz. `proyecto_lab` depende de las bibliotecas definidas en el CMake principal y no debe configurarse por separado:
+**Paso 3. Configurar y compilar** (siempre desde la raíz del repositorio; `proyecto_lab` no se configura por separado)
 
-   ```bash
-   cmake -S . -B build
-   ```
+```bash
+cmake -S . -B build
+cmake --build build -j
+```
 
-4. Compilar el target correspondiente a Tlatelolco:
+La compilación termina con `Built target proyecto_lab_main`. Pueden aparecer algunas advertencias del compilador; no impiden usar el programa.
 
-   ```bash
-   cmake --build build --target proyecto_lab_main --parallel
-   ```
+**Paso 4. Ejecutar**
 
-   La configuración raíz también examina otras carpetas con CMake. Un error durante esa fase puede proceder de otro subdirectorio, aunque se solicite compilar únicamente este target. Conservar el mensaje exacto para diagnosticarlo.
+```bash
+cd build/proyecto_lab
+./proyecto_lab_main
+```
 
-5. Comprobar los recursos y ejecutar desde el directorio del proyecto compilado:
+> **Importante.** El programa busca sus recursos con rutas relativas (`Models/`, `Shader/` y `UI/`), que CMake enlaza dentro de `build/proyecto_lab`. Ejecútalo siempre desde esa carpeta. Si copias solo el ejecutable a otro lugar, no encontrará los modelos, los shaders ni los textos.
 
-   ```bash
-   cd build/proyecto_lab
-   ls Shader/lighting.vs Shader/lighting.frag Models/plaza/plaza.obj
-   ./proyecto_lab_main
-   ```
+### 3.2 Windows (ejecutable)
 
-   `Shader` y `Models` son enlaces simbólicos creados por CMake hacia los recursos originales. Mover solo el ejecutable a otra carpeta rompe esta organización. No borrar ni sustituir modelos para resolver un problema de rutas.
+**[PENDIENTE: completar cuando esté listo el ejecutable para Windows.]** Debe indicar, como mínimo: dónde está el ejecutable (carpeta `Ejecutable/`), que las carpetas `Models`, `Shader` y `UI` deben estar **junto** al `.exe`, y cómo abrirlo (doble clic o desde una terminal).
 
-6. Al terminar, pulsar Escape o usar el cierre de la ventana. La condición de cierre se comprueba en el siguiente inicio del ciclo principal.
+### 3.3 Cerrar el programa
 
-## 4. Interfaz y navegación
+- Pulsa **`Esc`** en cualquier momento, o
+- cierra la ventana con el botón de la barra de título, o
+- al terminar la historia, pulsa `Enter` en la pantalla final.
 
-La aplicación solicita una ventana de 1280 × 720 titulada **T68 Sci-Fi Tribute**. El área de dibujo tiene un fondo azul claro y contiene la plaza y los modelos. No hay menú, indicador gráfico de selección ni panel de instrucciones. La cámara empieza en `(0, 10, 30)` y mira hacia el eje Z negativo. Esta descripción procede de la inicialización; la composición exacta de la primera imagen necesita una captura real.
+---
 
-El cursor queda capturado y oculto. Mover el ratón cambia la dirección de observación; el giro vertical está limitado a ±89°. WASD o las flechas desplazan la cámara respecto de su orientación. Mirar hacia arriba y avanzar también cambia la altura: la cámara no está restringida al piso y puede atravesar objetos. No hay zoom con la rueda ni control de velocidad implementado.
+## 4. La pantalla
 
-| Tecla o entrada | Acción | Resultado esperado |
+Al abrir el programa aparece una ventana de **1280 × 720** titulada *T68 Sci-Fi Tribute*. La historia empieza sola, con la cámara moviéndose sobre la plaza.
+
+![Introducción: texto de la historia](img/manual/m01_intro.jpg)
+
+*Figura 1. Introducción: la cámara sobrevuela la plaza y aparece el texto de la historia.*
+
+Verás tres tipos de elementos en pantalla:
+
+| Elemento | Dónde está | Para qué sirve |
 |---|---|---|
-| W / flecha arriba | Avanzar | La cámara avanza hacia donde mira. |
-| S / flecha abajo | Retroceder | La cámara se aleja en la dirección opuesta. |
-| A / flecha izquierda | Desplazarse a la izquierda | Movimiento lateral relativo a la cámara. |
-| D / flecha derecha | Desplazarse a la derecha | Movimiento lateral relativo a la cámara. |
-| Ratón | Cambiar orientación | Gira la vista horizontal y verticalmente. |
-| Escape | Solicitar cierre | Termina el ciclo y se cierra la aplicación. |
+| **Recuadro de texto** (fondo oscuro, borde dorado) | Parte baja | Cuenta la historia. Pulsa `Enter` para pasar a la siguiente página. |
+| **Recuadro de acción** (letras amarillas) | Parte baja | Te dice qué tecla pulsar para continuar. |
+| **Aviso rojo** «Tecla incorrecta» | Sobre el recuadro de acción | Solo en la escena 4, si pulsas la flecha equivocada. |
 
-La velocidad configurada de cámara es 6 unidades de escena por segundo. Las unidades no están acreditadas como metros. Conviene mantener el tamaño inicial: el programa no recalcula la proyección ni el viewport cuando cambia el tamaño de ventana.
+No hay menús, ni cursor, ni barra de estado.
 
-## 5. Interacción con los modelos
+---
 
-Al iniciar está seleccionado CUAU. Cada pulsación de TAB cambia la selección en el orden CUAU → SENTINEL → MAC → CUAU. La consola imprime `Moviendo:` seguido del nombre. Seleccionar SENTINEL afecta a las tres instancias juntas; no existe selección individual ni selección con el ratón.
+## 5. Controles
 
-| Tecla | Acción | Resultado esperado |
-|---|---|---|
-| TAB | Cambiar el grupo seleccionado | La consola identifica el nuevo grupo. |
-| J | Disminuir X del grupo | Desplazamiento hacia X negativo del escenario. |
-| L | Aumentar X del grupo | Desplazamiento hacia X positivo. |
-| I | Disminuir Z del grupo | Desplazamiento hacia Z negativo. |
-| K | Aumentar Z del grupo | Desplazamiento hacia Z positivo. |
-| U | Aumentar Y del grupo | El grupo sube. |
-| O | Disminuir Y del grupo | El grupo baja, incluso bajo el piso. |
-| P | Imprimir posiciones base | La terminal muestra `posCuau`, `posSentinel` y `posMac`. |
+### 5.1 Controles del relato
 
-Las teclas de traslación actúan mientras se mantienen presionadas, a 10 unidades por segundo en cada eje. X y Z son ejes del mundo, no de la cámara. P no guarda cambios en archivos: muestra coordenadas base, por lo que la posición visible de CUAU puede diferir durante su esquive. Al reiniciar se recuperan las posiciones iniciales. No hay una tecla para rotar manualmente MAC aunque exista una variable interna para su rotación.
-
-## 6. Animaciones
-
-| Tecla | Acción | Resultado esperado |
-|---|---|---|
-| N | Alternar el giro de sierras de MAC | Las tres aspas giran o conservan su ángulo actual. |
-| B | Alternar la secuencia de SENTINEL | Se activa o elimina el barrido con retroceso e iluminación intermitente. |
-| V | Alternar el esquive de CUAU-68 | El movimiento se actualiza o queda congelado en la pose actual. |
-
-Las sierras de MAC giran alrededor de sus centros, con la sierra central en sentido contrario a las otras dos. El cuerpo permanece en su posición base, salvo cuando se mueve con los controles de grupo. El giro no produce el efecto de iluminación del disparo.
-
-Los SENTINEL giran alrededor de su eje vertical mientras sus railguns retroceden en intervalos cortos. Una luz puntual cálida cambia de posición hacia una boca de arma activa. El programa representa el disparo mediante estas transformaciones y la iluminación: no dibuja balas ni calcula impactos. Al desactivar B, el grupo vuelve a su orientación base y las armas dejan de retroceder. Al reactivar continúa su tiempo interno, sin reiniciar la secuencia.
-
-CUAU-68 oscila lateralmente y hacia adelante y atrás, sube mediante pequeños saltos e inclina el cuerpo. Su orientación intenta seguir la dirección horizontal de su trayectoria. Se transforma todo el modelo; no se articulan piernas o brazos. Al desactivar V conserva incluso la altura de un salto en curso. No existe relación de colisión entre este movimiento y los disparos.
-
-## 7. Problemas frecuentes
-
-| Síntoma | Cómo identificarlo | Acción disponible |
-|---|---|---|
-| CMake no reconoce una biblioteca | La configuración menciona OpenGL, glfw3 o assimp ausente | Instalar el paquete de desarrollo correspondiente y repetir la configuración. Conservar el error si falta el target `assimp::assimp`. |
-| No se crea ventana | Consola: `Failed to create GLFW window` | Comprobar sesión gráfica y controlador de GPU; ejecutar desde una terminal para conservar el diagnóstico. |
-| Falla la carga de funciones gráficas | Consola: `Failed to initialise GLAD` | Comprobar el contexto y controlador OpenGL. No basta con tener las cabeceras instaladas. |
-| Shaders sin compilar o pantalla sin objetos | Mensajes `ERROR::SHADER::...` | Ejecutar en `build/proyecto_lab`, comprobar los dos archivos `lighting.*` y guardar el registro de compilación GLSL. |
-| Falta uno o varios modelos | Mensaje `ERROR::ASSIMP::` | Revisar `Models`, enlaces simbólicos, OBJ y MTL; respetar mayúsculas y nombres. Un error de modelo no necesariamente detiene la aplicación. |
-| Colores inesperados o textura ausente | Puede aparecer `ERROR textura:` en la ruta de tintado; la otra ruta no comprueba el fallo de imagen | Revisar imágenes referidas por los MTL. Si existen, reportar también la discrepancia de samplers registrada en el manual técnico. |
-| Cambiar el tamaño de ventana altera la vista | El encuadre o la proporción no se ajustan | Cerrar y volver a abrir con el tamaño inicial. No hay ajuste dinámico implementado. |
-| Se atraviesan paredes o piso | La cámara o un grupo cruza geometría | Volver usando los controles inversos o reiniciar. No existe detección de colisiones ni restablecimiento por tecla. |
-
-El campo de visión también requiere revisión técnica: el código pasa el valor 45 directamente a una función que recibe radianes. No hay un ajuste de usuario para corregirlo.
-
-## 8. Capturas pendientes
-
-Los siguientes espacios corresponden a imágenes reales por obtener. No se incluyeron imágenes sintéticas ni capturas de una ejecución ajena.
-
-| Identificador | Espacio reservado y contenido |
+| Tecla | Qué hace |
 |---|---|
-| CAP-01 | **[PENDIENTE: vista general]** Plaza, iglesia y edificio desde un punto donde se reconozca la distribución. |
-| CAP-02 | **[PENDIENTE: MAC]** Cuerpo y tres sierras; complementar con dos fotogramas que permitan observar su giro. |
-| CAP-03 | **[PENDIENTE: SENTINEL]** Grupo completo y detalle de un railgun durante su retroceso y luz activa. |
-| CAP-04 | **[PENDIENTE: CUAU-68]** Dos posiciones del esquive, incluyendo un salto. |
-| CAP-05 | **[PENDIENTE: consola]** Mensajes de TAB y coordenadas producidas con P, sin información personal. |
+| **`Enter`** | Avanza: pasa a la siguiente página de texto o a la siguiente escena. |
+| **`Espacio`** | Acción principal de la escena (dar un martillazo, despertar a CUAU-68, levantar la MAC, golpear…). |
+| **`←`** y **`→`** | Solo en la escena 4: esquivar. |
+| **`Esc`** | Cierra el programa. |
 
-Las siete capturas de comparación arquitectónica se especifican en [Comparativa Tlatelolco](referencias/Comparativa_Tlatelolco.md). Registrar resolución y condiciones de ejecución al incorporarlas.
+**Reglas que conviene conocer**
 
-## 9. Glosario
+- Mientras la cámara se mueve o una animación está en curso, el teclado se **ignora**. Espera a que aparezca el recuadro amarillo.
+- Si pulsas una tecla que no corresponde a la escena, no pasa nada.
+- No se puede retroceder ni saltar escenas durante el uso normal.
+- La cámara y los personajes no se mueven con el ratón ni con `W A S D`.
 
-| Término | Significado en este manual |
+---
+
+## 6. Guía de la historia, escena por escena
+
+Cada escena sigue el mismo ritmo: **texto** (`Enter`) → **viaje de cámara** → **tu acción** (recuadro amarillo) → **animación** → `Enter` para continuar. Las escenas 0 y 9 invierten el orden: primero la cámara y después el texto.
+
+### Escena 0 — Introducción
+
+- **Qué verás:** la plaza desde lo alto y tres páginas de texto: la fecha (2 de octubre de 1968, Plaza de las Tres Culturas), lo ocurrido esa tarde y el sentido del homenaje (una ficción con robots que representa la valentía de las y los estudiantes y la fuerza que quiso callarla).
+- **Qué hacer:** pulsa `Enter` tras cada página y, al final, `Enter` para continuar.
+
+### Escena 1 — Obreros construyen a CUAU-68
+
+- **Qué verás:** sobre la pirámide, CUAU-68 está tendido; seis obreros (UNAM e IPN) lo rodean con martillos. El texto cuenta cómo nace CUAU-68, su significado y quiénes lo construyen.
+- **Qué hacer:**
+  1. Pulsa **`Espacio`** tres veces para dar los **3 martillazos** (el recuadro cuenta 0/3, 1/3, 2/3). Espera a que termine cada golpe.
+  2. Cuando aparezca *«Presiona ESPACIO para despertar a CUAU-68»*, pulsa `Espacio` otra vez.
+- **Qué pasa:** CUAU-68 se incorpora y **las luces de su casco se encienden y pulsan** suavemente.
+
+![Escena 1: los obreros martillan a CUAU-68](img/manual/m02_obreros.jpg)
+
+*Figura 2. Escena 1: los obreros dan martillazos a CUAU-68, que yace sobre la pirámide.*
+
+![Escena 1: CUAU-68 despierta](img/manual/m03_despierta.jpg)
+
+*Figura 3. Escena 1: CUAU-68 se incorpora y enciende las luces del casco.*
+
+### Escena 2 — Salen los SENTINEL
+
+- **Qué verás:** del Templo de Santiago salen, **en fila**, tres SENTINEL MX caminando con su railgun en la mano. El texto explica quiénes son y qué recuerda la iglesia.
+- **Qué hacer:** nada; es automática. Al terminar, pulsa `Enter`.
+
+![Escena 2: los SENTINEL salen en fila](img/manual/m04_sentinel.jpg)
+
+*Figura 4. Escena 2: los SENTINEL MX avanzan en fila desde el templo.*
+
+### Escena 3 — CUAU-68 levanta la MAC
+
+- **Qué verás:** CUAU-68, ya en pie, empuña la MAC.
+- **Qué hacer:** pulsa **`Espacio`** para levantarla.
+- **Qué pasa:** CUAU-68 alza la MAC, **mira hacia arriba** y las **sierras de obsidiana empiezan a girar** (en sentidos alternos).
+
+![Escena 3: CUAU-68 con la MAC](img/manual/m05_mac.jpg)
+
+*Figura 5. Escena 3: CUAU-68 levanta la MAC y mira hacia arriba.*
+
+### Escena 4 — Sprint esquivando
+
+- **Qué verás:** la cámara queda detrás de los tres SENTINEL, que forman una fila y apuntan a CUAU-68. CUAU-68 espera sobre la pirámide.
+- **Qué hacer:** pulsa las flechas **en este orden: `←`, `→`, `←`**. El recuadro indica cuál toca (1/3, 2/3, 3/3).
+  - Cada flecha correcta lanza **un esquive**: CUAU-68 salta hacia ese lado **de la pantalla** y avanza hacia los SENTINEL.
+  - Si pulsas la flecha equivocada, aparece **«Tecla incorrecta»** y no pasa nada más.
+- **Qué pasa:** mientras esquivas, los SENTINEL **barren** el terreno con sus armas, que **retroceden** al disparar con un **destello de luz**. No hay balas.
+
+![Escena 4: a la espera de la primera flecha](img/manual/m06_esquive_espera.jpg)
+
+*Figura 6. Escena 4: los SENTINEL apuntan; el recuadro pide la primera flecha.*
+
+![Escena 4: primer esquive](img/manual/m07_esquive.jpg)
+
+*Figura 7. Escena 4: CUAU-68 salta hacia la izquierda de la pantalla mientras los SENTINEL disparan.*
+
+![Aviso de tecla incorrecta](img/manual/m14_tecla_incorrecta.jpg)
+
+*Figura 7b. Escena 4: si pulsas la flecha equivocada aparece el aviso rojo «Tecla incorrecta» y la secuencia no avanza.*
+
+### Escenas 5 y 7 — La MAC cae sobre un SENTINEL
+
+- **Qué verás:** CUAU-68 frente a un SENTINEL.
+- **Qué hacer:** pulsa **`Espacio`** (*«…golpear con la MAC»* en la escena 5; *«…el golpe final»* en la 7).
+- **Qué pasa:** CUAU-68 camina hacia el SENTINEL, levanta la MAC y la azota; el SENTINEL **cae hacia atrás y rebota** contra el suelo.
+
+![Escena 5: golpe con la MAC](img/manual/m08_azote.jpg)
+
+*Figura 8. Escena 5: el azote con la MAC.*
+
+![Escena 7: golpe final](img/manual/m10_azote_final.jpg)
+
+*Figura 9. Escena 7: el último SENTINEL cae bajo la MAC.*
+
+### Escena 6 — El puñetazo
+
+- **Qué hacer:** pulsa **`Espacio`** (*«…dar el golpe»*).
+- **Qué pasa:** CUAU-68 se acerca y golpea en la cara a otro SENTINEL con el puño izquierdo; este cae hacia atrás.
+
+![Escena 6: el puñetazo](img/manual/m09_punetazo.jpg)
+
+*Figura 10. Escena 6: el puñetazo de CUAU-68.*
+
+### Escena 8 — Victoria
+
+- **Qué verás:** los tres SENTINEL yacen derribados y sus railguns quedaron en el suelo.
+- **Qué hacer:** pulsa **`Espacio`** (*«…alzar la MAC»*).
+- **Qué pasa:** CUAU-68 **alza la MAC** con las sierras girando, en silencio.
+
+![Escena 8: victoria](img/manual/m11_victoria.jpg)
+
+*Figura 11. Escena 8: CUAU-68 alza la MAC; los SENTINEL derribados y sus railguns, en el piso.*
+
+### Escena 9 — La lápida
+
+- **Qué verás:** la cámara viaja hasta la **lápida conmemorativa**, en la zona contemporánea de la plaza, y aparecen tres páginas de texto sobre la memoria: *«2 de octubre no se olvida»*.
+- **Qué hacer:** pulsa `Enter` en cada página. En la última pantalla, `Enter` **cierra** el programa (o `Esc` para salir).
+
+![Escena 9: la lápida y el texto final](img/manual/m12_lapida_texto.jpg)
+
+*Figura 12. Escena 9: la lápida, con el texto de cierre.*
+
+![Pantalla final](img/manual/m13_fin.jpg)
+
+*Figura 13. Pantalla final: «FIN · ENTER para cerrar · ESC para salir».*
+
+---
+
+## 7. Las cinco animaciones
+
+Todas las animaciones se generan **por código**; no hay animaciones de Blender ni videos. Las cinco que se presentan como oficiales son:
+
+| N.º | Animación | Tipo | Dónde se ve |
+|---|---|---|---|
+| 1 | **Giro de las sierras de la MAC** (sentidos alternos) | Sencilla | Escenas 3, 5, 7 y 8 |
+| 2 | **Luces del casco de CUAU-68** que se encienden y pulsan con un seno | Sencilla | Desde la escena 1 |
+| 3 | **Caída del SENTINEL** con rebote | Sencilla | Escenas 5, 6 y 7 |
+| 4 | **Barrido de los SENTINEL**: giro senoidal, vibración, retroceso del railgun y destello de luz sincronizados | Compleja | Escena 4 |
+| 5 | **Sprint esquivando de CUAU-68**: salto, desplazamiento lateral, giro suavizado hacia la velocidad e inclinación | Compleja | Escena 4 |
+
+Además hay movimientos de apoyo, también por código: los martillazos de los obreros, la caminata de los SENTINEL al salir del templo, el puñetazo y el azote de CUAU-68. Las fórmulas de todas se explican en el **manual técnico**.
+
+---
+
+## 8. Modo desarrollador (opcional)
+
+Sirve para **revisar y ajustar** las escenas; no hace falta para ver la historia. Todo lo de esta sección se activa con teclas que el relato normal no usa.
+
+### 8.1 Teclas del modo desarrollador
+
+| Tecla | Qué hace |
 |---|---|
-| Cámara libre | Punto de observación que puede desplazarse y girar sin estar sujeto al piso. |
-| Grupo | Conjunto controlable: CUAU, los tres SENTINEL o MAC. |
-| Modelo OBJ | Archivo que contiene la geometría importada de un objeto. |
-| Material MTL | Archivo asociado al OBJ que describe colores y referencias a texturas. |
-| Textura | Imagen aplicada a una superficie para definir su apariencia. |
-| Shader | Programa ejecutado por la GPU para transformar vértices o calcular el color. |
-| Enlace simbólico | Entrada del sistema de archivos que apunta a los recursos originales. |
-| Fotograma | Imagen producida en una iteración del ciclo de dibujo. |
+| **`AvPág` / `RePág`** | Salta a la escena siguiente / anterior (también `]` y `[` en teclado inglés). La escena queda lista para ver su acción. |
+| **`F1`** | Cámara libre: `W A S D` o las flechas la mueven y el ratón la gira. Empieza donde estaba la cámara del relato. |
+| **`C`** | Imprime en la terminal la posición y el punto de mira de la cámara. |
+| **`F3`** | Modo edición: mueve a los actores de la escena actual (ver 8.2). |
+| **`F2`** | Cambia entre el relato y el *banco de pruebas* (ver 8.3). |
 
-## 10. Base documental
+### 8.2 Modo edición (`F3`)
 
-Controles y comportamiento: [`main.cpp`](../proyecto_lab/main.cpp) y [`Camera.h`](../proyecto_lab/Camera.h). Instalación: [README raíz](../README.md), [CMake raíz](../CMakeLists.txt) y [CMake del proyecto](../proyecto_lab/CMakeLists.txt). Versión inspeccionada y verificaciones: [Resumen técnico](Resumen_Tecnico.md).
+Con `F3` activado, el programa imprime la ayuda en la terminal.
+
+| Tecla | Qué hace |
+|---|---|
+| `TAB` | Elige el actor: CUAU, SENTINEL 1 a 3 u OBREROS (solo entre los visibles). |
+| `J` / `L` | Mueve a la izquierda / derecha (eje X). |
+| `I` / `K` | Mueve atrás / adelante (eje Z). |
+| `U` / `O` | Sube / baja. |
+| `Q` / `E` | Gira. |
+| `P` | Imprime posiciones absolutas y ajustes de la escena. |
+
+Los ajustes se **guardan solos** en el archivo `ajustes_escenas.txt` (en la carpeta desde donde se ejecuta el programa) y se cargan al abrir. Para volver a la configuración original, **borra ese archivo**. En la escena 4 los tres SENTINEL se mueven como grupo.
+
+### 8.3 Banco de pruebas (`F2`)
+
+Muestra las mallas de pose y los modelos por partes sin el relato. Con la cámara libre activa:
+
+| Tecla | Qué hace |
+|---|---|
+| `W A S D` / flechas y ratón | Mueven y giran la cámara. |
+| `TAB`, `J L I K U O`, `Q E`, `Z X` | Eligen un grupo y lo mueven, giran y escalan. |
+| `P` | Imprime escalas, giros y posiciones. |
+| `N`, `B`, `V` | Activan o detienen las sierras, el barrido de los SENTINEL y el esquive de CUAU-68. |
+| `G` | Alterna entre las mallas de pose y los modelos por partes (con caminata). |
+| `R` | Con `G`: deja los modelos quietos en pose T. |
+| `H` | Enciende o apaga el visor, las luces del casco y el «68» de CUAU-68. |
+| `F` | Muestra el círculo de obreros; `Espacio` da un martillazo. |
+
+### 8.4 Opciones de línea de comandos
+
+Sirven para probar una escena concreta o tomar capturas sin usar el teclado:
+
+```bash
+./proyecto_lab_main --escena 5                      # empieza en la escena 5, lista para la acción
+./proyecto_lab_main --escena 4 --teclas 0.2:LEFT    # simula una flecha izquierda a los 0.2 s
+./proyecto_lab_main --escena 3 --cam -8 5 12 -12 5 8   # cámara fija: posición y punto de mira
+./proyecto_lab_main --escena 8 --teclas 0.3:SPACE --foto captura.png 3.5   # guarda una captura a los 3.5 s y cierra
+```
+
+Teclas simulables en `--teclas`: `SPACE`, `ENTER`, `LEFT`, `RIGHT`, `PGDN`, `PGUP`, `TAB`, `F3` y cualquier letra.
+
+---
+
+## 9. Problemas frecuentes
+
+| Síntoma | Causa probable | Qué hacer |
+|---|---|---|
+| CMake dice que no encuentra `glfw3` o `assimp` | Falta el paquete de desarrollo | Instala `libglfw3-dev` y `libassimp-dev` y repite `cmake -S . -B build`. |
+| `Failed to create GLFW window` | No hay sesión gráfica o el controlador no ofrece OpenGL 3.3 | Ejecuta desde un escritorio con aceleración gráfica y revisa el controlador. |
+| `Failed to initialise GLAD` | El contexto OpenGL no se creó | Igual que el anterior; no basta con tener las cabeceras instaladas. |
+| `ERROR::SHADER::…` o pantalla sin objetos | Faltan los shaders o no compilan | Ejecuta desde `build/proyecto_lab` y comprueba que existe `Shader/lighting.vs`, `lighting.frag`, `hud.vs` y `hud.frag`. |
+| `ERROR::ASSIMP::…` | Falta algún modelo | Revisa que `Models/` esté completa y que los nombres respeten mayúsculas y minúsculas. |
+| `HUD: no se pudo cargar UI/xxx.png` | Falta la carpeta `UI/` o algún texto | Ejecuta desde `build/proyecto_lab` (o junto a la carpeta `UI/`). Sin ella la historia se ve, pero **sin textos**. |
+| Pantalla negra o personajes sin textura | Rutas relativas rotas | No muevas el ejecutable fuera de `build/proyecto_lab`. |
+| La historia parece «atascada» | Una animación está en curso o la cámara se mueve | Espera al recuadro amarillo; el teclado se ignora mientras tanto. |
+| La flecha no responde en la escena 4 | Es la flecha equivocada de la secuencia | Sigue el orden `←`, `→`, `←` que indica el recuadro. |
+| Los personajes aparecen en lugares distintos a los de las capturas | Existe un `ajustes_escenas.txt` con ajustes del modo edición | Bórralo y vuelve a abrir el programa. |
+| El programa se cerró de repente | Se pulsó `Esc`, o falló la ventana | Vuelve a ejecutarlo desde la terminal y conserva los mensajes que imprima. |
+| Va lento | Controlador sin aceleración (renderizado por software) | Comprueba que el sistema usa la GPU; el renderizador debe nombrar tu tarjeta, no «llvmpipe». |
+
+---
+
+## 10. Créditos y recursos
+
+| Recurso | Autoría y procedencia |
+|---|---|
+| Modelo de la **Plaza de las Tres Culturas** (plaza, iglesia, edificio, vestigios, lápida, árboles, mobiliario) | **[PENDIENTE: nombre completo de Víctor y confirmación del crédito]** |
+| **CUAU-68**, **SENTINEL MX**, **MAC** y **obreros** | Modelados en Blender por el equipo. Los conceptos visuales de CUAU-68 y SENTINEL se generaron con inteligencia artificial y se usaron como referencia de diseño. |
+| **Portada** | Generada con inteligencia artificial a partir de capturas de los modelos de Blender. |
+| **Texturas** de los robots y la plaza | **[PENDIENTE: procedencia y licencia de cada textura]** |
+| **Textos del HUD** | Imágenes PNG generadas con Python y Pillow, con la fuente DejaVu Sans (licencia libre). |
+| Software | OpenGL, GLFW, GLAD, GLM, SOIL2 y Assimp (código base de la asignatura y bibliotecas libres); Blender y Python para el modelado y las imágenes de texto. |
+
+---
+
+## 11. Aviso sobre el contenido
+
+El 2 de octubre de 1968, en la Plaza de las Tres Culturas de Tlatelolco, una concentración estudiantil fue reprimida con violencia. Muchas personas murieron o resultaron heridas, y su memoria sigue viva.
+
+Este proyecto es una **ficción** hecha con respeto y con fines académicos y no comerciales: dos robots, CUAU-68 y los SENTINEL MX, representan la valentía de las y los estudiantes y la fuerza que quiso callarla. No muestra violencia contra personas. La zona arqueológica y el entorno son una **recreación estilizada**, no un levantamiento arquitectónico.
+
+---
+
+## 12. Glosario
+
+| Término | Significado |
+|---|---|
+| **Escena** | Cada uno de los 10 momentos de la historia. |
+| **HUD** | Los recuadros de texto dibujados sobre la imagen 3D. |
+| **MAC** | Mecanismo Acelerador de Cadena, el arma de CUAU-68. |
+| **SENTINEL MX** | Los robots del gobierno (el ejército). |
+| **CUAU-68** | Coraza Unificada de Acción Universitaria. |
+| **Railgun** | Arma de los SENTINEL; en el programa se representa con retroceso y un destello de luz, sin balas. |
+| **Modo desarrollador** | Teclas opcionales para revisar y ajustar las escenas. |
+| **Shader** | Programa que ejecuta la GPU para calcular la forma y el color de lo que se dibuja. |
+| **OBJ / MTL** | Archivos de geometría y de materiales de los modelos 3D. |

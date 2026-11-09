@@ -1,364 +1,803 @@
+![Portada de T68 Sci-Fi Tribute](T68_%20Sci-Fi%20Tribute_Cover.png)
+
 # T68 Sci-Fi Tribute — Manual técnico
 
-Universidad Nacional Autónoma de México · Facultad de Ingeniería  
-Computación Gráfica  
-Integrantes, grupo, profesor y fecha académica: **pendientes de proporcionar**.
+**Universidad Nacional Autónoma de México · Facultad de Ingeniería**
+Laboratorio de Computación Gráfica · Profesor: Ing. Edén Espinoza Urzúa
 
-Versión inspeccionada: `36edb9352e6053eb2f9f0341e9351ab7027c6a80`. Revisión documental: 6 de noviembre de 2026. Las afirmaciones de implementación corresponden a lectura estática de `proyecto_lab` y sus dependencias compartidas. No se cuenta con una ejecución gráfica ni con mediciones de rendimiento.
+Integrantes: **[PENDIENTE: nombres completos del equipo]**
+Grupo: **[PENDIENTE]**
+Fecha de entrega: 9 de noviembre de 2026
+Versión documentada: rama `main`, a partir del commit `0024f94`
+
+---
+
+## Contenido
+
+1. [Introducción y justificación](#1-introducción-y-justificación)
+2. [Objetivos](#2-objetivos)
+3. [Alcance](#3-alcance)
+4. [Limitaciones](#4-limitaciones)
+5. [Metodología de desarrollo aplicada](#5-metodología-de-desarrollo-aplicada)
+6. [Arquitectura y diagrama de flujo del software](#6-arquitectura-y-diagrama-de-flujo-del-software)
+7. [Documentación del código](#7-documentación-del-código)
+8. [Fundamentos matemáticos](#8-fundamentos-matemáticos)
+9. [Modelado jerárquico por partes](#9-modelado-jerárquico-por-partes)
+10. [Máquina de estados del relato](#10-máquina-de-estados-del-relato)
+11. [Animaciones](#11-animaciones)
+12. [Renderizado e iluminación](#12-renderizado-e-iluminación)
+13. [Modelos, materiales y texturas](#13-modelos-materiales-y-texturas)
+14. [Pruebas y verificación](#14-pruebas-y-verificación)
+15. [Diagrama de Gantt](#15-diagrama-de-gantt)
+16. [Conclusiones](#16-conclusiones)
+17. [Referencias y créditos](#17-referencias-y-créditos)
+18. [Anexos](#18-anexos)
+
+---
 
 ## 1. Introducción y justificación
 
-El desarrollo consiste en integrar una representación de la Plaza de las Tres Culturas con personajes de ciencia ficción dentro de una aplicación gráfica interactiva. El escenario procede de un OBJ compuesto que reúne arquitectura, vestigios y mobiliario. CUAU-68, SENTINEL y MAC se importan desde archivos separados y se colocan mediante matrices de modelo. Esta separación permite conservar la plaza como entorno y modificar la posición de los personajes durante la ejecución.
+**T68 Sci-Fi Tribute** es un relato gráfico interactivo en 3D, programado en C++ con OpenGL 3.3, que recrea de forma estilizada la **Plaza de las Tres Culturas de Tlatelolco** (Ciudad de México) y la convierte en el escenario de una historia de ciencia ficción: un homenaje al 2 de octubre de 1968. Fue desarrollado como proyecto final del Laboratorio de Computación Gráfica, a partir del código base proporcionado por el profesor (carga de modelos con Assimp, cámara, shaders de iluminación de Phong y ejemplos de modelado jerárquico y de máquina de estados).
 
-El problema técnico no termina al importar geometría. Los modelos tienen materiales, imágenes y orígenes locales distintos; para mostrarlos juntos es necesario cargar sus recursos, transformar sus coordenadas y proporcionar al shader datos de cámara e iluminación. MAC requiere compensar el origen de su cuerpo y colocar las sierras respecto de él. SENTINEL comparte geometría entre tres instancias, pero necesita una transformación y un estado de disparo distintos para cada una. CUAU combina una posición controlada por el usuario con un desplazamiento calculado en función del tiempo.
+**Por qué este proyecto.** El tema une tres lecturas de un mismo lugar: la zona prehispánica, el templo colonial y los edificios contemporáneos. Esa composición se usa como argumento de la historia: CUAU-68 nace en la zona prehispánica, los SENTINEL salen del templo colonial y la lápida final está en la zona contemporánea. Técnicamente, el proyecto reúne lo visto en el curso: modelos importados y texturizados, iluminación con una luz direccional y una puntual dinámica, modelado jerárquico por partes, animaciones por código, una máquina de estados que gobierna la narración y un HUD de texto en 2D.
 
-La elección de este escenario da un referente identificable para revisar proporciones, distribución espacial y materiales. No existe evidencia de levantamiento métrico ni de una reconstrucción histórica validada; la comparación con fotografías forma parte de la documentación pendiente. En términos de la asignatura, la implementación permite estudiar cómo las transformaciones locales llegan al espacio de pantalla y cómo una actualización temporal modifica la escena sin reconstruir las mallas. Este manual explica esas relaciones y registra las discrepancias encontradas entre el código de aplicación y sus shaders, para que la evaluación distinga lo implementado de lo que todavía debe comprobarse en pantalla.
+El proyecto cumple los requisitos de la asignatura: recreación de una fachada y un espacio con al menos siete objetos evaluables, cinco animaciones (tres sencillas y dos complejas) generadas por código, documentación y repositorio de GitHub.
+
+---
 
 ## 2. Objetivos
 
-### 2.1. Objetivo general
+### 2.1 Objetivo general
 
-Construir un entorno tridimensional interactivo de Tlatelolco mediante OpenGL, con modelos importados, navegación de cámara y tres animaciones programadas, cuyo comportamiento pueda verificarse mediante controles y casos de prueba definidos.
+Desarrollar una aplicación gráfica interactiva en OpenGL que recree la Plaza de las Tres Culturas con ambientación de ciencia ficción y cuente, mediante una máquina de estados y animaciones por código, una historia que rinda homenaje respetuoso al 2 de octubre de 1968.
 
-### 2.2. Objetivos específicos
+### 2.2 Objetivos específicos
 
-1. Representar el escenario contenido en `plaza.obj` conservando su organización geométrica y referencias de materiales.
-2. Integrar CUAU-68, tres instancias de SENTINEL con railgun y MAC con tres sierras mediante transformaciones independientes.
-3. Implementar navegación con teclado y ratón, así como selección y traslación de los grupos de personajes.
-4. Controlar el giro de sierras, la secuencia de disparo y el esquive mediante tiempo transcurrido y banderas independientes.
-5. Integrar iluminación direccional y un destello puntual en el cálculo de color de las superficies.
-6. Documentar la carga de recursos y verificar el comportamiento con una matriz de pruebas, dejando identificadas las ejecuciones pendientes.
+1. Recrear al menos siete objetos distintos de la plaza (Templo de Santiago, Edificio Chihuahua, plataformas de la zona arqueológica, árboles, bancas, rejas y lápida) con geometría y texturizado adecuados.
+2. Integrar cuatro personajes originales (CUAU-68, SENTINEL, MAC y obreros) con materiales completos, y exportarlos tanto como mallas de pose como por **partes con pivotes** para animarlos de forma jerárquica.
+3. Implementar **cinco animaciones por código** (tres sencillas y dos complejas), coherentes con el contexto de la historia.
+4. Programar una **máquina de estados** que organice el relato en 10 escenas, con una cámara guionizada y una acción de usuario por escena.
+5. Mostrar el texto de la historia con un **HUD** nítido, sin bibliotecas de fuentes.
+6. Mantener un repositorio versionado, un ejecutable funcional y una documentación completa.
 
-Estos objetivos describen características existentes y una actividad de verificación prevista; no certifican que todas hayan superado pruebas de ejecución.
+---
 
 ## 3. Alcance
 
-La escena dibuja una plaza compuesta y seis tipos de recurso geométrico importado: plaza, CUAU, cuerpo de SENTINEL, railgun, cuerpo de MAC y aspa. SENTINEL y su arma se dibujan tres veces; el aspa se reutiliza en tres alturas. No se carga una copia de archivo por instancia. El inventario nominal de la plaza incluye iglesia exterior e interior, muebles de iglesia, convento, Chihuahua, vestigios, lápida, árboles, bancas y otros elementos urbanos. Los nombres de objetos no demuestran por sí mismos que su aspecto corresponda al lugar real.
+**Incluye**
 
-La navegación es libre y usa la orientación de la cámara. Los grupos se trasladan sobre los ejes del mundo y sus posiciones pueden imprimirse en consola. Las animaciones comienzan activadas y se alternan con N, B y V. No hay interfaz gráfica de edición ni almacenamiento de cambios.
+- Recreación estilizada de la plaza: iglesia, edificio moderno, vestigios, árboles, bancas, reja y lápida (un solo modelo OBJ de 56 924 vértices, con 43 materiales).
+- Relato de **10 escenas** con cámara guionizada, texto en pantalla y acciones de usuario (`Enter`, `Espacio`, `← →`).
+- Modelos originales: CUAU-68 (16 piezas), SENTINEL (13 piezas), MAC (cuerpo y aspa), railgun y obreros UNAM e IPN.
+- Cinco animaciones oficiales y movimientos de apoyo (martillazos, caminata, azote, puñetazo).
+- Iluminación de Phong con luz direccional y una luz puntual dinámica (destello del railgun).
+- Modo desarrollador: cámara libre, salto de escena, edición de posiciones con guardado automático y opciones de línea de comandos para capturas.
+- Manual de usuario, manual técnico, diagramas y Gantt.
 
-La apariencia se calcula con una luz direccional y una puntual intermitente. El shader también contiene un foco, pero la aplicación envía sus intensidades en cero. Los materiales se convierten en texturas de imagen, texturas teñidas o colores planos de 1 × 1 píxel. No se implementa un sistema PBR aunque Assimp permita consultar texturas BASE_COLOR. El FBX de CUAU y los shaders `lamp` y `modelLoading` no participan en esta versión.
+**No incluye**
 
-Se prevén como trabajo documental la ejecución de pruebas, las capturas y la comparación fotográfica. No se presentan como funciones futuras del programa ni como tareas terminadas.
+- Detección de colisiones ni simulación física.
+- Audio.
+- Ajuste dinámico del tamaño de la ventana.
+- Guardado del progreso del relato.
+- Reproducción fotorrealista: la recreación es estilizada, no un levantamiento arquitectónico.
+- Ejecutable para Windows (**[PENDIENTE]**, ver sección 4).
 
-## 4. Limitaciones observables
+---
 
-| Restricción | Consecuencia y evidencia |
-|---|---|
-| Dependencias externas y enlaces simbólicos | La compilación depende de OpenGL, GLFW y Assimp; CMake enlaza recursos por ruta. Linux es el entorno descrito; no se verificó Windows o macOS. |
-| Contexto no solicitado por versión | `main()` no llama a `glfwWindowHint`; GLSL 330 requiere un contexto compatible, que no queda garantizado por una solicitud explícita. |
-| Proyección sin conversión angular | Se pasa 45 a `glm::perspective` sin `glm::radians`; GLM 0.9.9.3 interpreta el argumento en radianes. No se acredita un campo visual de 45°. |
-| Ventana sin actualización de tamaño | Viewport y proyección solo se calculan al inicio; no hay callback de framebuffer. |
-| Interfaz de samplers inconsistente | C++ escribe nombres que no corresponden con `material.diffuse` y `material.specular`; consultar sección 7.5. |
-| Animación rígida y predefinida | Se transforman modelos completos y piezas; no hay skinning, física, detección de impactos o colisiones. |
-| Orientación de SENTINEL | Apunta a la base `posCuau`, no a la posición animada ni a una predicción de trayectoria. |
-| Una luz de disparo | Si coincide más de un destello, se toma el primero en orden de índice; no se suman tres luces. |
-| Importador restringido | Lee normales sin comprobar su existencia; no solicita generarlas ni aplica `aiNode::mTransformation`. Otros archivos podrían no importarse como se espera. |
-| Manejo parcial de errores | Fallos de shaders o modelos se imprimen y no abortan necesariamente; `TextureFromFile` no comprueba imagen nula. |
-| Gestión de recursos | No se definen destructores para liberar VAO/VBO/EBO, texturas y programa; la salida normal termina GLFW y el proceso. |
+## 4. Limitaciones
 
-No hay pruebas que permitan atribuir caídas de rendimiento a la complejidad de la plaza. Tampoco se establecen límites de memoria o una tasa de fotogramas esperada sin medición.
-
-## 5. Metodología de desarrollo propuesta
-
-Se propone una metodología incremental e iterativa. Cada incremento debe dejar una escena que pueda abrirse y revisarse antes de añadir otra fuente de cambios. El historial disponible permite identificar incorporación de recursos y animaciones, pero no reconstruye reuniones, responsables ni la secuencia completa de trabajo del equipo.
-
-| Incremento propuesto | Trabajo y criterio de revisión |
-|---|---|
-| Preparación del escenario | Revisar OBJ/MTL de plaza, orientación y escala; obtener una vista general sin personajes. |
-| Integración de modelos | Incorporar los seis recursos usados y comprobar sus orígenes, posiciones y materiales. |
-| Programación de animaciones | Revisar una animación a la vez; alternar su bandera y verificar transformaciones locales. |
-| Pruebas e integración | Ejecutar la matriz de la sección 11, combinando movimientos manuales y animaciones. Registrar errores reproducibles. |
-| Documentación | Contrastar cada control y ecuación con el código; añadir capturas y resultados observados. |
-| Presentación final | Preparar un recorrido que muestre escenario, controles y animaciones; grabar y revisar la entrega. |
-
-Este orden facilita localizar si una anomalía procede de la importación, de una matriz o del shader. La iteración permite volver al incremento correspondiente cuando una prueba detecta una discrepancia, sin atribuir el problema a toda la escena. La revisión visual es necesaria porque una compilación correcta no demuestra que un pivote o un material se hayan representado correctamente. Las fechas del cronograma se separan de esta propuesta; véase [Explicación del Gantt](gestion/Explicacion_Gantt.md).
-
-## 6. Arquitectura del software
-
-La aplicación concentra entrada, estado y renderizado en `main.cpp`. No hay clases independientes llamadas sistema de animación o administrador de escena: esos papeles los cumplen variables globales, funciones y bloques del ciclo principal. `Model` administra colecciones de `Mesh`; cada malla conserva sus datos de CPU y sus identificadores de GPU. `Shader` pertenece a las dependencias compartidas.
-
-| Módulo real | Archivo | Responsabilidad e intercambio de datos |
+| Limitación | Consecuencia | Observación |
 |---|---|---|
-| Programa principal | `proyecto_lab/main.cpp` | Crea contexto, carga recursos, actualiza tiempo y emite el dibujo. Posee posiciones y banderas globales. |
-| Entrada | Callbacks y `DoMovement()` en `main.cpp` | GLFW informa eventos; `keys` conserva estados; las funciones modifican cámara, selección y posiciones. |
-| Animación | `Animation()` y bloques de `main()` | Actualizan ángulos y tiempos; calculan desplazamientos, matrices, retrocesos y luz. |
-| Cámara | `proyecto_lab/Camera.h` | Mantiene base de orientación y posición; produce la matriz de vista con GLM. |
-| Modelos y materiales | `proyecto_lab/Model.h` | Assimp transforma datos importados en mallas; selecciona imágenes, tintes y colores. |
-| Mallas | `proyecto_lab/Mesh.h` | Carga atributos e índices en GPU y enlaza texturas antes de dibujar. |
-| Programa de shaders | `dependencias/Shader.h` | Lee, compila y enlaza GLSL; expone `Program` y `Use()`. |
-| Transformación de vértices | `proyecto_lab/Shader/lighting.vs` | Calcula posición de clip, posición de mundo y normal transformada. |
-| Iluminación | `proyecto_lab/Shader/lighting.frag` | Combina componentes ambiental, difusa y especular con luces y texturas. |
-| Configuración | CMake raíz y `proyecto_lab/CMakeLists.txt` | Construye dependencias, define `proyecto_lab_main` y enlaces a recursos. |
+| **Sin colisiones ni física.** Las posiciones de los actores son constantes ajustadas a mano. | Un actor puede atravesar geometría si se mueve en el modo edición. | Las alturas del piso se tomaron de `plaza.obj` (plano en y ≈ 0; plataforma a 1.85). |
+| **Ventana fija de 1280 × 720.** El *viewport* y la proyección se calculan una vez. | Al redimensionar, la imagen no se adapta. | No hay *callback* de redimensionado. |
+| **Ángulo de visión.** `glm::perspective` recibe el valor `45` (el código base lo usa así) y GLM espera **radianes**. | El campo de visión vertical efectivo no es 45° sino ≈ **58.3°** (por la periodicidad de la tangente). | Comprobado con `2·atan(tan(22.5))`. No altera el funcionamiento; se mantiene por coincidir con el código base. |
+| **Muestreadores (*samplers*) de GLSL.** `Mesh.h` asigna el nombre `texture_diffuse1`, `main.cpp` define `Material.difuse` y el shader usa `material.diffuse` y `material.specular`. | Ninguno coincide, pero funciona porque todos valen 0 por defecto y apuntan a la unidad de textura 0. | Consecuencia: el mapa especular es la misma textura que la difusa. |
+| **Brillo fijo.** `Mesh::Draw` fija `material.shininess = 16`, lo que anula el valor 5 que define `main.cpp`. | El brillo especular es el mismo para todos los modelos. | Efecto visual leve. |
+| **Sin PBR.** Los *Metallic* y *Roughness* de Blender no viajan en el OBJ. | Los metales se ven mates; se compensó con el color difuso compuesto en las texturas. | Ver sección 13. |
+| **Emisión por uniform.** Visor, luces del casco y «68» se encienden con un uniform (`emissive`/`brillo`), no con un mapa de emisión. | Las piezas «apagadas» usan una versión oscura (`brillo`). | Ver sección 11. |
+| **Texto del HUD pregenerado** como imágenes PNG. | Cambiar un texto exige regenerar los PNG con `UI/generar_textos.py`. | Garantiza nitidez y acentos. |
+| **Carga al arranque.** Se cargan 41 OBJ y 28 imágenes (algunas de 2048 × 2048). | El programa tarda **≈ 8.3 s** en mostrar el primer cuadro (medido en el equipo de pruebas) y usa ≈ **196 MB** de RAM. | Mediciones propias, 3 corridas. |
+| **Rutas relativas.** Los recursos se buscan en `Models/`, `Shader/` y `UI/` del directorio de trabajo. | Hay que ejecutar desde `build/proyecto_lab` o junto a esas carpetas. | CMake crea los enlaces simbólicos. |
+| **Luz puntual única.** Hay una sola luz puntual (`NUMBER_OF_POINT_LIGHTS = 1`) y el *spot* queda apagado. | Solo un destello a la vez. | Suficiente para el barrido (ver 11.4). |
+| **Plataforma.** Validado en Linux (Debian 13). | La versión para Windows está **pendiente**. | **[PENDIENTE]** |
+| **Rendimiento no medido.** No se midieron fotogramas por segundo ni se probó en otras GPU. | Se desconoce el mínimo de hardware. | Solo se probó en una AMD Radeon 610M. |
 
-Los materiales no son objetos persistentes propios con propiedades completas del MTL. El importador extrae los datos que necesita y los traduce a una lista de `Texture`; el shader usa un brillo global por malla. Esta decisión de implementación limita qué propiedades originales llegan al dibujo.
+---
 
-## 7. Documentación detallada del código
+## 5. Metodología de desarrollo aplicada
 
-### 7.1. Estado compartido
+Se aplicó una metodología **incremental e iterativa**, organizada por las **entregas parciales de la clase de teoría** y cerrada con una integración final en OpenGL.
 
-| Variables de `main.cpp` | Papel y modificación |
+### 5.1 Incrementos
+
+| Incremento | Fecha | Resultado | Evidencia |
+|---|---|---|---|
+| Prototipo | 29 de septiembre | Concepto y primer prototipo de los personajes | Entrega de teoría |
+| Modelado | 13 de octubre | Modelos de CUAU-68, SENTINEL, MAC y plaza | Archivos `.blend` |
+| Texturizado, color e iluminación | 27 de octubre | Materiales y texturas de los modelos | Archivos `.blend` y texturas |
+| Animación | 5 de noviembre | Animaciones de los personajes en Blender | Entrega de teoría |
+| **Integración en OpenGL** | 6 al 9 de noviembre | Escena, rigs por partes, animaciones por código | Commits `e128f2b` a `99ef023` |
+| **Relato interactivo** | 8 y 9 de noviembre | Máquina de estados, HUD y 10 escenas | Commits `d4644c7` y `99ef023` |
+| **Documentación** | 8 y 9 de noviembre | Manuales, diagramas y Gantt | Commits `2caa3f9` y `0024f94`, y este manual |
+
+### 5.2 Prácticas
+
+- **Versionado con Git y GitHub**, con un *pull request* para la documentación del compañero (PR #1, integrado en `main`).
+- **Iteración con verificación visual.** Cada cambio se compiló y se revisó en pantalla. Para eso se añadieron al programa opciones de línea de comandos que saltan a una escena, simulan teclas y guardan una captura (ver Anexo B); así se detectaron, por ejemplo, cámaras dentro de la iglesia y personajes hundidos en los escalones de la pirámide.
+- **Modo edición** (`F3`): permite ajustar posiciones de los actores viendo la escena y luego fijarlas como constantes, lo que acorta el ciclo de ajuste.
+- **Pruebas por escena** y una prueba de punta a punta (sección 14).
+- **Regeneración reproducible** de recursos: los textos del HUD (`UI/generar_textos.py`), los diagramas (`docs/diagramas/generar_diagramas.py`) y las texturas de los modelos se producen con *scripts*.
+
+### 5.3 Valoración honesta
+
+El **modelado, texturizado y animación** de los personajes avanzaron con las entregas parciales, pero la **integración en OpenGL, el relato y la documentación se concentraron en los últimos cuatro días** (6 al 9 de noviembre, según el historial de git). Es una limitación de planeación: dejó poco margen para pruebas en otros equipos y en Windows. No se llevó un registro de horas; el diagrama de Gantt (sección 15) refleja las ventanas de entrega y los commits reales, no horas trabajadas.
+
+### 5.4 Roles y herramientas
+
+| Rol | Responsable |
 |---|---|
-| `posCuau`, `posSentinel`, `posMac` | Bases iniciales (0,0,0), (0,0,−30), (12,0,6); `DoMovement()` modifica la seleccionada. |
-| `grupoSel`, `grupos`, `nombreGrupo` | Índice 0..2, punteros a posiciones y nombres; TAB cambia el índice y permite reutilizar el mismo código de movimiento. |
-| `offSentinel` | Desplazamientos fijos (−16,0,0), (0,0,−6), (16,0,0) respecto de la base del grupo. |
-| `animSierras`, `animScarface`, `animEsquive` | Banderas verdaderas al inicio; N/B/V las invierten. `animScarface` es el nombre interno de la secuencia SENTINEL. |
-| `rotAspa`, `tScar`, `tEsq` | Ángulo acumulado en grados y tiempos propios en segundos; `Animation()` los actualiza cuando su bandera lo permite. |
-| `cuauOffset`, `cuauYaw`, `cuauTilt` | Resultados del esquive aplicados al dibujar CUAU. |
-| `camera`, `keys`, `lastX`, `lastY`, `firstMouse` | Estado de navegación y entrada. Los callbacks y `DoMovement()` lo actualizan. |
-| `deltaTime`, `lastFrame` | Diferencia de tiempo y marca anterior; calculadas al comienzo de cada fotograma. |
-| `rotMac` | Yaw del cuerpo inicializado en cero, sin control que lo cambie. |
+| Modelado y texturizado de CUAU-68, SENTINEL, MAC y obreros | **[PENDIENTE]** |
+| Modelo de la plaza | Víctor — **[PENDIENTE: nombre completo]** |
+| Programación e integración | **[PENDIENTE]** |
+| Documentación | **[PENDIENTE]** |
 
-`PLAZA_ESCALA`, `CUAU_ESC`, `SENT_ESC` y `MAC_ESC` valen 1. `MAC_CENTRO=(16,0,0)`, `MAC_SUELO=5.8` y `ASPA_Y={0.30,2.85,5.40}` corrigen la colocación de MAC. `bocaLocal=(9,9,0)` define el punto local usado como boca del railgun; no se infiere automáticamente de la malla.
-
-### 7.2. Funciones del programa principal
-
-#### `int main()` — `proyecto_lab/main.cpp`
-
-No recibe argumentos. Inicializa GLFW sin comprobar el retorno de `glfwInit()`, solicita la ventana y comprueba su puntero. Si falla, imprime un mensaje, termina GLFW y devuelve `EXIT_FAILURE`. Tras activar el contexto, consulta el framebuffer, registra callbacks y captura el cursor. GLAD se inicializa con `glfwGetProcAddress`; si falla devuelve `EXIT_FAILURE`, sin llamar a `glfwTerminate()` en esa rama.
-
-Construye `lightingShader` y seis `Model`, lo que dispara lectura de archivos y creación de recursos gráficos. La cámara ya fue construida globalmente antes de entrar a `main()`. Calcula una proyección una sola vez con planos 0.1 y 1000. En cada iteración modifica `deltaTime` y `lastFrame`, procesa eventos, llama a movimiento y animación, limpia buffers, configura iluminación y matrices, dibuja y presenta el resultado. Las matrices SENTINEL se calculan aquí, no dentro de `Animation()`.
-
-Sus dependencias directas son GLFW, GLAD, GLM, `Shader`, `Model`, `SetModel()` y las funciones de actualización. Su salida normal es 0 tras terminar GLFW. No hay guardado del estado ni liberación explícita de cada recurso OpenGL.
-
-#### `void Animation()` — `proyecto_lab/main.cpp`
-
-Sin parámetros ni valor de retorno: consume `deltaTime` y banderas globales. Incrementa `rotAspa` a 540 grados por segundo y `tScar` a razón de un segundo por segundo cuando están activos. Con esquive activo incrementa `tEsq`, calcula tres componentes de `cuauOffset` y actualiza yaw e inclinación. No modifica posiciones base, no recibe eventos y no envía uniformes.
-
-Sus salidas son estado global para la siguiente construcción de matrices. Depende de seno, coseno, valor absoluto, `atan2`, módulo y conversiones de GLM. Si V está apagada no recalcula el offset ni la orientación; los valores previos permanecen. Las fórmulas y su interpretación están en la sección 9.
-
-#### `void DoMovement()` — `proyecto_lab/main.cpp`
-
-Lee `keys`, `deltaTime` y `grupoSel`. Para WASD o flechas llama a `camera.ProcessKeyboard(dirección, deltaTime)`. Una alternativa de tecla dentro de la misma dirección usa OR, por lo que W y arriba simultáneas no duplican ese avance. Direcciones diferentes se procesan por separado y no se normaliza el movimiento diagonal.
-
-Después obtiene una referencia a `*grupos[grupoSel]` y aplica incrementos de `10*deltaTime` sobre X, Y o Z con J/L, U/O e I/K. No devuelve datos; modifica cámara o una posición global. Las teclas opuestas se cancelan aritméticamente. No calcula colisiones ni limita el volumen de movimiento.
-
-#### `void KeyCallback(GLFWwindow*, int key, int scancode, int action, int mode)`
-
-Función de `main.cpp` registrada ante GLFW. `window` permite solicitar cierre con Escape; `key` identifica la tecla y `action` distingue pulsación, repetición y liberación. `scancode` y `mode` no se utilizan. Para códigos 0..1023 activa o desactiva `keys[key]` en PRESS y RELEASE.
-
-Solo en PRESS invierte las banderas N/B/V, cambia TAB mediante `(grupoSel+1)%3` o imprime posiciones con P. La repetición de tecla no vuelve a alternar las animaciones. Sus efectos son cambios de estado, salida en consola y señal de cierre; no devuelve un valor. `DoMovement()` consume después el estado de teclas mantenidas.
-
-#### `void MouseCallback(GLFWwindow*, double xPos, double yPos)`
-
-Función de `main.cpp` que recibe posición del cursor. La primera llamada inicializa `lastX` y `lastY` para evitar un salto por la referencia inicial. Calcula `xPos-lastX` y `lastY-yPos`, guarda la posición nueva y envía los desplazamientos a `camera.ProcessMouseMovement()`. Modifica las referencias globales y la orientación de cámara; no devuelve valor. `window` no se usa.
-
-#### `static void SetModel(GLuint P, const glm::mat4& m)`
-
-Auxiliar de `main.cpp`. Busca el uniforme `model` del programa `P` y copia la matriz `m` con `glUniformMatrix4fv`, sin transposición (`GL_FALSE`). No cambia la matriz de CPU ni activa el programa: depende de que `lightingShader.Use()` se haya llamado. Su efecto es actualizar estado del programa gráfico vigente para el próximo dibujo. No almacena la ubicación del uniforme entre llamadas.
-
-### 7.3. Clase `Camera` — `proyecto_lab/Camera.h`
-
-| Método | Entradas, salida y estado afectado |
+| Herramienta | Uso |
 |---|---|
-| `Camera(vec3 position, vec3 up, GLfloat yaw, GLfloat pitch)` | Inicializa posición, vertical del mundo y ángulos; fija velocidad 6, sensibilidad 0.15 y zoom 45; llama a `updateCameraVectors()`. |
-| `Camera(posX,posY,posZ,upX,upY,upZ,yaw,pitch)` | Alternativa escalar con el mismo efecto; no se usa para la cámara global actual. |
-| `GetViewMatrix()` | Sin entradas; devuelve `lookAt(position, position+front, up)` sin modificar estado. |
-| `ProcessKeyboard(direction, deltaTime)` | Calcula velocidad por tiempo y suma o resta `front` o `right` a `position`; sin retorno. |
-| `ProcessMouseMovement(xOffset,yOffset,constrainPitch=true)` | Escala desplazamientos por sensibilidad; modifica yaw/pitch, limita pitch y reconstruye la base. |
-| `ProcessMouseScroll(yOffset)` | Cuerpo vacío: no modifica zoom ni otra variable. No se registra callback de rueda. |
-| `GetZoom()`, `GetPosition()`, `GetFront()` | Devuelven copias de zoom, posición y dirección; no alteran estado. |
-| `updateCameraVectors()` | Método privado; convierte yaw/pitch a radianes, calcula `front`, normaliza y obtiene `right` y `up` mediante productos cruz. |
+| C++17, OpenGL 3.3, GLSL 330, GLFW, GLAD, GLM, SOIL2, Assimp | Aplicación |
+| CMake | Compilación |
+| Blender | Modelado, texturizado y exportación OBJ |
+| Python y Pillow | Textos del HUD, diagramas y composición de texturas |
+| Git y GitHub | Versionado y entrega |
+| **[CONFIRMAR: ¿se menciona el uso de asistentes de inteligencia artificial en el código y los textos?]** | |
 
-Los vectores base evitan que el movimiento lateral dependa de la magnitud de un producto cruz sin normalizar. El límite de pitch evita llegar a una orientación exactamente paralela a `worldUp`. No se impone altura fija.
+---
 
-### 7.4. Clase `Model` y funciones de textura — `proyecto_lab/Model.h`
+## 6. Arquitectura y diagrama de flujo del software
 
-| Elemento | Contrato, efectos y dependencias |
+### 6.1 Estructura del repositorio
+
+```
+CMakeLists.txt              raíz: glad, soil2 y subdirectorio proyecto_lab
+dependencias/               glad, SOIL2, GLM, Shader.h (base del profesor)
+proyecto_lab/
+  main.cpp                  programa completo (1310 líneas)
+  Camera.h  Mesh.h  Model.h cámara, malla y carga de modelos (base del profesor, con ajustes)
+  Shader/                   lighting.vs/.frag (escena) y hud.vs/.frag (texto)
+  Models/                   plaza, CUAU-68, SENTINEL, MAC, OBRERO (OBJ, MTL e imágenes)
+  UI/                       33 PNG del HUD y generar_textos.py
+docs/                       manuales, diagramas, Gantt, referencias
+```
+
+### 6.2 Capas
+
+| Capa | Contenido |
 |---|---|
-| `Model(GLchar *path)` | Recibe ruta relativa; llama a `loadModel`; llena colecciones internas y crea recursos de GPU durante la importación. Requiere contexto activo. |
-| `Draw(Shader shader)` | Recorre `meshes` y llama a `Mesh::Draw`; recibe el wrapper por valor; no activa por sí mismo el shader. |
-| `loadModel(string path)` | `ReadFile` usa Triangulate y FlipUVs. Ante escena inválida imprime error y retorna; de lo contrario calcula `directory` y procesa la raíz. Modifica mallas y cachés indirectamente. |
-| `processNode(aiNode*, const aiScene*)` | Agrega mallas referidas por el nodo y recorre hijos recursivamente. No acumula transformaciones de nodos. Sin retorno. |
-| `processMesh(aiMesh*, const aiScene*)` | Copia posición y normal de cada vértice; copia UV0 o asigna (0,0); concatena índices de caras; interpreta material y devuelve un `Mesh`. Modifica cachés de texturas. |
-| `loadMaterialTextures(aiMaterial*, aiTextureType, string typeName)` | Consulta rutas del material; reutiliza `textures_loaded` por ruta o llama a `TextureFromFile`; devuelve una lista de `Texture`. |
-| `TextureFromFile(const char*, string directory)` | Concatena directorio y ruta; SOIL2 carga RGBA; crea textura, mipmaps, repetición y filtros lineales. Libera imagen de CPU y devuelve identificador. No comprueba fallo de carga. |
-| `TexturaColorPlano(glm::vec3 kd)` | Convierte Kd a una aproximación sRGB y crea un píxel RGBA opaco con filtrado nearest; devuelve GLuint. |
-| `TexturaTenida(filename,tinte,f)` | Carga RGBA, transforma RGB píxel a píxel y crea textura con mipmaps. Ante fallo imprime `ERROR textura:` y devuelve 0. Conserva alfa. |
-| `aLineal(float)`, `aSRGB(float)` | Funciones auxiliares: potencias 2.2 y 1/2.2; la segunda limita a [0,1]. Devuelven componentes de color. |
+| Aplicación | `main.cpp`: relato, rigs, animaciones, HUD y ciclo principal |
+| Gráficos | `Model.h`, `Mesh.h`, `Camera.h`, `Shader.h` y los shaders |
+| Bibliotecas | GLFW (ventana y entrada), GLAD (funciones de OpenGL), GLM (matemáticas), SOIL2 (imágenes) y Assimp (modelos) |
+| Recursos | OBJ, MTL, imágenes y PNG de texto |
 
-`processMesh()` prioriza BASE_COLOR si existe y, en otro caso, DIFFUSE. Busca el nombre del material en `TINTES`, una tabla de 12 recetas de la plaza. Si hay receta e imagen, produce una textura teñida y la guarda en `cacheMat` por nombre. Sin receta usa las imágenes ordinarias; sin imagen crea color plano desde Kd, con respaldo (0.8,0.8,0.8). Después agrega mapas especulares.
+### 6.3 Diagrama de flujo del software
 
-El tintado aproxima una conversión a espacio lineal con potencia 2.2. Calcula gris ponderado `0.2126R+0.7152G+0.0722B`, reduce la separación respecto de ese gris a 0.82, multiplica por 1.1 y mezcla con un color fijo según el factor de la receta. Aunque un comentario menciona HSV, el procedimiento real es una mezcla RGB basada en luminancia, sin conversión explícita a HSV. El resultado se convierte de regreso, se limita y se almacena como RGBA de 8 bits. No hay una corrección sRGB de framebuffer configurada en `main()`.
+![Diagrama de flujo del software](diagramas/flujo_programa.png)
 
-`textures_loaded` evita recargar rutas dentro de un mismo Model, y `cacheMat` evita regenerar colores o tintes por nombre. No hay un caché global entre Model diferentes. `loadModel()` comprueba las banderas de escena con igualdad frente a INCOMPLETE, no con una máscara de bits; esta comprobación no cubre todas las combinaciones posibles. `processMesh()` presupone normales presentes, porque no solicita `GenNormals` ni comprueba `mNormals`.
+*Versión editable: [`diagramas/flujo_programa.mmd`](diagramas/flujo_programa.mmd).*
 
-### 7.5. Clase `Mesh` y enlace de materiales — `proyecto_lab/Mesh.h`
+Cada cuadro del ciclo principal hace, en orden: (5) calcular `deltaTime` y atender eventos; (6) actualizar el relato; (7) calcular las matrices de los SENTINEL y la luz de destello; (8) enviar uniformes y dibujar la plaza; (9) dibujar los actores de la escena; (10) dibujar el HUD; (11) guardar una captura si se pidió con `--foto`; (12) intercambiar buffers.
 
-`Vertex` contiene `Position` (vec3), `Normal` (vec3) y `TexCoords` (vec2). `Texture` conserva identificador, tipo y ruta Assimp. El constructor `Mesh(vector<Vertex>, vector<GLuint>, vector<Texture>)` copia esas colecciones y llama a `setupMesh()`. Este método privado genera VAO, VBO y EBO, sube datos con `GL_STATIC_DRAW` y configura atributos 0, 1 y 2 con el tamaño de `Vertex` y los offsets de sus campos. No devuelve datos; deja identificadores internos listos para el dibujo.
+---
 
-`Draw(Shader shader)` activa unidades consecutivas, enlaza texturas y construye nombres `texture_diffuse1`, `texture_specular1`, etc. Fija `material.shininess=16`, enlaza VAO y ejecuta `glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0)`. Desenlaza VAO y texturas al terminar. El número de llamadas de dibujo depende de las mallas de cada Model, no solo de los seis recursos importados.
+## 7. Documentación del código
 
-Hay una discrepancia comprobable en el contrato de materiales. `lighting.frag` declara `material.diffuse` y `material.specular`, pero `Mesh::Draw()` intenta asignar `texture_diffuse1` y `texture_specular1`. `main()` intenta asignar `Material.difuse`, `Material.specular` y `diffuse`, que tampoco corresponden. Para uniformes inexistentes, la ubicación −1 hace que la escritura no tenga efecto; los samplers activos no reciben así una selección explícita válida de unidades. Por su inicialización predeterminada pueden consultar ambos la unidad 0, de modo que la imagen difusa podría aparecer sin que el mapa especular correcto esté conectado. El resultado visible debe comprobarse; no se documenta una configuración de materiales plenamente validada.
+### 7.1 Archivos
 
-El brillo efectivo enviado por malla es 16, porque esa asignación ocurre después del valor 5 enviado en `main()`. No se transfiere el exponente `Ns` de cada MTL. Estas observaciones describen el código existente; no se hicieron correcciones de fuentes durante esta tarea.
+| Archivo | Líneas | Propósito | Origen |
+|---|---|---|---|
+| `proyecto_lab/main.cpp` | 1310 | Programa completo: constantes, rigs, relato, HUD, dibujado, entrada | Propio, sobre el ejemplo del profesor |
+| `proyecto_lab/Model.h` | 277 | Carga de modelos con Assimp; texturas; tintes de la plaza; caché de texturas | Base del profesor, con ajustes |
+| `proyecto_lab/Mesh.h` | 142 | Malla: VAO, VBO, EBO y `Draw` | Base del profesor |
+| `proyecto_lab/Camera.h` | 172 | Cámara libre (+ `SetLookAt`) | Base del profesor, con un método añadido |
+| `dependencias/Shader.h` | 98 | Compilación y enlace de shaders | Base del profesor |
+| `Shader/lighting.vs` / `.frag` | 19 / 173 | Iluminación de Phong de la escena (+ uniformes `emissive` y `brillo`) | Base del profesor, con ajustes |
+| `Shader/hud.vs` / `.frag` | 15 / 12 | Dibujo de los cuadros de texto en 2D | Propio |
+| `UI/generar_textos.py` | ~100 | Genera los 33 PNG del HUD con Pillow | Propio |
+| `docs/diagramas/generar_diagramas.py` | ~250 | Genera los diagramas PNG | Propio |
 
-### 7.6. Clase `Shader` y funciones GLSL
+Los shaders `lamp.*` y `modelLoading.*` pertenecen al código base y no se usan en el relato.
 
-En `dependencias/Shader.h`, `Shader(vertexPath,fragmentPath)` recibe dos rutas, lee los archivos, crea y compila etapas, comprueba `GL_COMPILE_STATUS`, enlaza `Program` y comprueba `GL_LINK_STATUS`. Imprime registros de hasta 512 caracteres y elimina los objetos de etapas después del enlace. No lanza una interrupción propia ante compilación fallida. La lectura habilita excepciones para `badbit`, por lo que una ruta inexistente no garantiza el mensaje específico de lectura; también puede terminar en errores de compilación de una fuente vacía. `Use()` no recibe datos ni retorna valor: activa `Program` con `glUseProgram`.
+### 7.2 Constantes y estado global (`main.cpp`)
 
-| Función del shader activo | Entradas y resultado |
+| Grupo | Elementos | Significado |
+|---|---|---|
+| Ventana | `WIDTH = 1280`, `HEIGHT = 720`, `SCREEN_WIDTH/HEIGHT` | Tamaño solicitado y del *framebuffer* |
+| Escalas | `escGrupo[3] = {0.35, 0.35, 0.35}` | Escala de CUAU, SENTINEL y MAC |
+| MAC | `MAC_CENTRO (16,0,0)`, `ASPA_Y[3] = {0.30, 2.85, 5.40}`, `MAC_MANO (-3.9,-0.1,0.85)`, `MAC_AGARRE_Y = 4.6` | Centro del modelo, altura de cada aspa y punto de agarre en la mano |
+| Rigs | `ALTURA_CUAU = 11.85`, `ALTURA_SENT = 10.78`, `RAILGUN_GIRO_Y = 0` | Altura de la cadera sobre el piso y giro del railgun |
+| Disparo | `bocaLocal (-1.15, 12.8, 8.9)`, `RETROCESO_MAX = 0.8` | Boca del railgun (para el destello) y retroceso máximo |
+| Puntos de escena | `ZP`, `E1_CUAU`, `E3_CUAU`, `E2_Z_OFF[3]`, `E4_INICIO`, `E4_FIN`, `E4_SENT`, `E5_*`, `E6_*`, `E7_*`, `E8_*` | Posiciones y giros de los actores, tomados del modo edición |
+| Cámara del relato | `ESC[10].cam`, `.mira`, `.durCam`; `camPos`, `camMira` | Destino de cada escena y cámara actual |
+| Estado | `escena`, `fase`, `pagina`, `tFase`, `tAnim`, `tReloj`, `golpesObr`, `pasoEsq`, `avisoT`, `tGolpe` | Ver sección 10 |
+| Actores | `cuauVisible`, `macVisible`, `obrerosVisible`, `sentVis[3]`, `cuauPosR`, `cuauYawR`, `cuauPitchR`, `sentPos[3]`, `sentYaw[3]`, `sentCaida[3]`, `sentRail[3]` | Qué se dibuja y dónde, en cada cuadro |
+| Modo desarrollador | `modoRelato`, `camLibre`, `modoEdicion`, `edOff[10][5]` | Banderas y ajustes por escena y actor |
+
+### 7.3 Estructuras y enumeraciones
+
+| Tipo | Campos | Uso |
+|---|---|---|
+| `PiezaDef` | `archivo`, `padre`, `offset` (vec3), `luz` | Descripción de una pieza de un rig (tablas `DEF_CUAU`, `DEF_SENT`, `DEF_OBRERO_*`) |
+| `Pieza` | `modelo` (Model*), `padre`, `offset`, `rot` (grados), `luz`, `visible` | Pieza cargada: su modelo y su pose actual |
+| `Rig` | `p` (vector de `Pieza`), `altura`, `luces`, `M` (matrices) | Un personaje articulado. `M` guarda la matriz de mundo de cada pieza del último dibujo |
+| `Escena` | `paginas[3]`, `textoDespues`, `cam`, `mira`, `durCam` | Una fila de la tabla `ESC[10]` |
+| `TexHUD` | `id`, `w`, `h` | Textura de un PNG del HUD |
+| `enum Fase` | `F_TEXTO`, `F_CAMARA`, `F_ESPERA`, `F_ANIMA`, `F_FIN` | Fases de cada escena |
+| `enum` de índices | `PELVIS … PIE_D` (12 comunes), `C_CABEZA, C_VISOR, C_LUCES, C_LUZ68`, `S_RAILGUN`, `OB_CUERPO, OB_BRAZO` | Índices de pieza; son **iguales en CUAU y SENTINEL** para las 12 piezas comunes |
+
+### 7.4 Funciones
+
+**Rigs y poses**
+
+| Función | Qué hace |
 |---|---|
-| `lighting.vs::main()` | Atributos posición, normal y UV, matrices M/V/P. Produce `gl_Position=PVMp`, posición de mundo, normal con inversa transpuesta de M y UV. |
-| `lighting.frag::main()` | Normaliza normal y dirección al observador; suma luz direccional, una puntual y foco; emite RGBA. Solo descarta alfa bajo si `transparency==1`. |
-| `CalcDirLight(light,normal,viewDir)` | Usa dirección opuesta de luz, producto punto difuso y reflexión especular; devuelve RGB ambiental+difuso+especular. |
-| `CalcPointLight(light,normal,fragPos,viewDir)` | Añade dirección desde el fragmento y atenuación por distancia a la suma de componentes. |
-| `CalcSpotLight(light,normal,fragPos,viewDir)` | Calcula también intensidad entre conos interno y externo; devuelve RGB del foco. Su intensidad configurada está apagada. |
+| `CargarRig(r, carpeta, defs, n, altura)` | Carga cada OBJ de `carpeta/archivo.obj` y arma el rig con su padre y su *offset* |
+| `DibujarRig(r, base, shader)` | Recorre las piezas (padres primero), calcula `M = M_padre · T(offset) · Rx · Ry · Rz`, fija `emissive`/`brillo` y dibuja; guarda `r.M` |
+| `PoseT(r)` · `PoseReposo(r)` | Todas las rotaciones en 0 (pose T) · de pie con los brazos colgando (±78° en Z) |
+| `PoseCaminar(r, t, amp, frec)` | Ciclo de caminata de las 12 piezas comunes |
+| `SujetarRailgun(r)` | Contrarresta el giro del brazo derecho para que el arma quede horizontal |
+| `AnguloMartillo(t)` | Ángulo del brazo del obrero durante un martillazo |
 
-El cálculo especular usa `reflect`, por lo que corresponde a una formulación de tipo Phong, no al vector medio de Blinn-Phong. `transparency` se fija en 0 y no se habilita mezcla alfa en `main()`; la presencia de materiales de vidrio no demuestra transparencia visual. No hay cálculo de sombras. Las otras dos parejas GLSL presentes quedan fuera del pipeline actual.
+**Matemáticas auxiliares**
 
-## 8. Fundamentos matemáticos aplicados
+| Función | Qué hace |
+|---|---|
+| `Suave(u)` | *Smoothstep*: `u²(3 − 2u)` |
+| `Clamp01(x)` · `Rampa(t, a, b)` | Limita a [0,1] · `Suave` de `(t − a)/(b − a)`: vale 0 antes de `a` y 1 después de `b` |
+| `CaidaSentinel(t)` | Progreso (0 a 1) de la caída con rebote |
+| `MezclaMat(A, B, s)` | Mezcla dos matrices rígidas: posición lineal y rotación con *slerp* (disponible; la escena 3 ya no la usa) |
+| `AlturaPiso4(x)` | Altura del piso a lo largo del recorrido de la escena 4 |
 
-### 8.1. Transformaciones afines y coordenadas homogéneas
+**Relato**
 
-Una posición local se amplía a `p=(x,y,z,1)`. La cuarta componente permite expresar traslación mediante una matriz 4 × 4; para una dirección se usa w=0 y la traslación no contribuye. El shader transforma posiciones como:
+| Función | Qué hace |
+|---|---|
+| `IniciarEscena(i)` | Reinicia el estado de la escena `i` y fija su fase inicial |
+| `IrAEscena(i)` | Salta a una escena ya lista (modo desarrollador y pruebas) |
+| `TrasTexto()` · `TrasCamara()` | Deciden la fase siguiente al terminar el texto o el viaje de cámara |
+| `ProcesarTeclaRelato(tecla)` | Aplica `Enter`, `Espacio` y flechas según la fase y la escena |
+| `EscenaAzote(t, k, …)` | Cuadro de las escenas 5 y 7 (camina, levanta la MAC, golpea, el SENTINEL cae) |
+| `ActualizarRelato(dt)` | Avanza la fase y calcula, para la escena actual, la visibilidad, posición y pose de cada actor |
+| `DurAnim(e)` | Duración (s) de la animación de la escena `e` |
 
-$$p_{clip}=P\,V\,M\,(x,y,z,1)^T.$$
+**HUD**
 
-M es `model`, que coloca cada objeto en el mundo; V es `view`, obtenida de `Camera::GetViewMatrix()`; P es `projection`, creada en `main()`. La división por w y el mapeo al viewport forman parte del procesamiento posterior de OpenGL. Las posiciones de la boca del railgun también usan w=1 para convertir `bocaLocal` a coordenadas de mundo.
+| Función | Qué hace |
+|---|---|
+| `InitHUD()` | Crea el cuadro unitario (VAO/VBO) |
+| `HUDTex(nombre)` | Carga perezosa de `UI/nombre.png` como textura |
+| `DibujarHUD(shader, nombre, abajo, alpha)` | Dibuja un PNG centrado, escalado a la ventana (las imágenes están al doble de resolución) |
+| `PromptActual()` | Elige el recuadro de acción según escena y fase |
+| `DibujarHUDRelato(shader)` | Dibuja el texto o el recuadro de acción, con mezcla alfa y sin prueba de profundidad |
 
-En la convención de vectores columna usada aquí, `translate(m,p)`, seguido de `rotate` y `scale`, construye `M=T R S`: el vértice recibe primero S, después R y finalmente T. Cambiar ese orden altera la posición del pivote. La traslación suma componentes, el escalamiento multiplica por las escalas y la rotación conserva distancias respecto de su eje. Todas las escalas configuradas actualmente son uniformes e iguales a 1.
+**Dibujo y ciclo**
 
-El shader transforma normales con `mat3(transpose(inverse(model)))`, no con la misma matriz de posición. Esta operación conserva su relación perpendicular con la superficie frente a transformaciones invertibles; posteriormente el fragment shader vuelve a normalizarlas.
+| Función | Qué hace |
+|---|---|
+| `DibujarRelato(shader, mSent, retro)` | Dibuja obreros, CUAU, MAC y SENTINEL de la escena actual |
+| `SetModel(P, m)` | Envía la matriz `model` |
+| `main(argc, argv)` | Inicialización, opciones de línea de comandos y ciclo principal |
+| `Animation()` | Animaciones comunes: giro de las sierras, tiempo de martillazo y del barrido |
+| `KeyCallback` · `DoMovement` · `MouseCallback` | Teclado, movimiento de cámara/grupos y ratón |
 
-### 8.2. Vista, orientación y proyección
+**Modo edición**
 
-La cámara construye su dirección a partir de yaw ψ y pitch φ:
+| Función | Qué hace |
+|---|---|
+| `ActorVisible(a)` · `SiguienteActor()` | Elige el actor editable (solo entre los visibles) |
+| `ImprimirAjustes()` | Imprime posiciones y ajustes de la escena |
+| `GuardarAjustes()` · `CargarAjustes()` | Escriben y leen `ajustes_escenas.txt` |
 
-$$f=(\cos\psi\cos\varphi,\ \sin\varphi,\ \sin\psi\cos\varphi).$$
+### 7.5 Clases del código base
 
-Los ángulos se guardan en grados y se convierten con `glm::radians` en `updateCameraVectors()`. `front` es la normalización de f; `right=normalize(front×worldUp)` y `up=normalize(right×front)`. Con estos vectores `lookAt` forma V.
+| Clase | Descripción |
+|---|---|
+| `Camera` | Cámara libre con ángulos de Euler (*yaw*, *pitch*). `GetViewMatrix()` usa `glm::lookAt(posición, posición + frente, arriba)`. Se añadió `SetLookAt(pos, objetivo)`, que calcula *yaw* = `atan2(f.z, f.x)` y *pitch* = `asin(f.y)`. En el relato la vista sale de `camPos`/`camMira`, no de esta clase. |
+| `Model` | Carga un OBJ con Assimp (`aiProcess_Triangulate`, `aiProcess_FlipUVs`). Para cada material: si está en la tabla `TINTES`, genera una textura teñida (`TexturaTenida`); si trae imagen, la carga (`TextureFromFile`, con **caché por archivo**); si no, crea una textura 1 × 1 con el color `Kd` convertido de lineal a sRGB (`TexturaColorPlano`, `c^(1/2.2)`). |
+| `Mesh` | Guarda vértices (posición, normal, UV), índices y texturas, y arma el VAO/VBO/EBO. `Draw` enlaza las texturas y dibuja con `glDrawElements`. |
+| `Shader` | Compila y enlaza un par de shaders y expone `Program` y `Use()`. |
 
-P usa perspectiva con relación `SCREEN_WIDTH/SCREEN_HEIGHT` y planos cercano 0.1 y lejano 1000. El valor de zoom es 45, pero se omite su conversión a radianes en esta llamada. Por eso se distingue la intención aparente de un campo de 45 grados del argumento efectivo enviado a GLM. No se recalcula P en cada fotograma ni al mover el ratón.
+**Receta de tinte de la plaza** (`TexturaTenida`, para 12 materiales). Para cada píxel, con `c` en espacio lineal (`c = c_sRGB^2.2`): primero la luminancia `g = 0.2126·R + 0.7152·G + 0.0722·B`; luego se reduce la saturación y se sube el valor, `c = (g + (c − g)·0.82)·1.1`; y se mezcla con el color del material, `c = mix(c, tinte, factor)`. Después se convierte de nuevo a sRGB.
 
-### 8.3. Tiempo y movimiento periódico
+### 7.6 Shaders
 
-$$\Delta t_n=t_n-t_{n-1},\qquad q_{n+1}=q_n+v\Delta t_n.$$
+**`lighting.vs`** calcula `FragPos = model·posición`, la normal `Normal = mat3(transpose(inverse(model)))·normal` y pasa las coordenadas de textura; `gl_Position = projection·view·model·posición`.
 
-`t_n` es `glfwGetTime()`, Δt es `deltaTime`, q puede ser posición o ángulo y v su velocidad lineal o angular. La cámara usa v=6 unidades/s y los grupos v=10 unidades/s por eje. Multiplicar por tiempo reduce la dependencia del desplazamiento respecto de cuántos fotogramas se dibujan; no constituye una medición de rendimiento.
+**`lighting.frag`** implementa Phong con una luz direccional, una luz puntual y una de foco (apagada):
 
-`lastFrame` comienza en cero y no se reinicia tras cargar modelos: el primer delta incluye el tiempo previo al primer fotograma. No hay límite superior de delta ni paso temporal fijo. Una pausa larga puede producir un incremento grande al volver.
+| Uniforme | Descripción |
+|---|---|
+| `dirLight`, `pointLights[1]`, `spotLight` | Luces (ver sección 12) |
+| `viewPos` | Posición de la cámara |
+| `material.diffuse`, `material.specular`, `material.shininess` | Muestreadores y brillo |
+| `transparency` | Si vale 1, descarta fragmentos con alfa < 0.1 |
+| **`emissive`** (propio) | 0 a 1: suma el color propio de la textura |
+| **`brillo`** (propio) | Multiplica la iluminación (1 = normal) |
 
-$$s(t)=A\sin(\omega t+\phi),\qquad T=\frac{2\pi}{|\omega|}.$$
+Color final: `color = vec4(resultado·brillo + emissive·albedo.rgb, albedo.a)`.
 
-A es amplitud, ω frecuencia angular en radianes por segundo y φ fase. SENTINEL usa esta forma para el barrido; CUAU la usa en dos ejes. Los senos y cosenos de `<cmath>` reciben radianes. La velocidad de un término sinusoidal se obtiene como `Aω cos(ωt+φ)`, operación utilizada explícitamente para orientar a CUAU.
+**`hud.vs` / `hud.frag`** dibujan un cuadro unitario con `rect = (x, y, ancho, alto)` en píxeles (origen arriba a la izquierda): `p = rect.xy + pos·rect.zw` y `gl_Position = (p.x/screen.x·2 − 1, 1 − p.y/screen.y·2)`. El fragmento muestrea la textura y multiplica el alfa por `alpha`.
 
-## 9. Las tres animaciones
+---
 
-### 9.1. MAC: rotación de sierras
+## 8. Fundamentos matemáticos
 
-N controla `animSierras`. `Animation()` realiza `rotAspa += 540.0f * deltaTime`, así que la velocidad angular es 540°/s, equivalente a 1.5 vueltas/s; una vuelta tarda 2/3 s mientras esté activa. El ángulo no se reduce módulo 360, sino que se acumula.
+### 8.1 Transformaciones y matrices homogéneas
 
-La matriz del cuerpo es:
+Cada objeto se coloca con una matriz de modelo `M = T · R · S` (traslación, rotación y escala) en coordenadas homogéneas 4 × 4, enviada al shader como `model`. Las rotaciones usan `glm::rotate` alrededor de los ejes unitarios. El orden importa: en `m = translate(m, p); m = rotate(m, θ, Y); m = scale(m, s)` se escala primero, se gira después y se traslada al final.
 
-$$M_b=T(posMac)\,R_y(rotMac)\,S(MAC\_ESC)\,T(-16,5.8,0).$$
+### 8.2 Modelado jerárquico
 
-`posMac` es la base controlada por el usuario; `rotMac` permanece en cero; la última traslación compensa el origen del cuerpo. Para cada sierra se usa:
+Cada pieza hereda la transformación de su padre:
 
-$$M_i=M_b\,T(16,h_i,0)\,R_z(s_i\theta).$$
+```
+M_hijo = M_padre · T(offset) · Rx(rx) · Ry(ry) · Rz(rz)
+```
 
-`h_i` toma 0.30, 2.85 y 5.40 desde `ASPA_Y`; θ es `rotAspa`; `s_i` vale +1, −1, +1. Se reutiliza el mismo `aspa.obj` en las tres posiciones. Su colocación presupone la geometría local de ese recurso: no se calcula un centroide durante la ejecución ni se añade una traslación inversa de pivote tras el giro. `aspas.txt` documenta los centros usados para situarlas.
+El `offset` es la posición del pivote del hijo respecto al pivote del padre, y como cada OBJ tiene su **origen en su pivote**, rotar la pieza equivale a girarla sobre su articulación. La raíz del rig es la pelvis, elevada `altura` sobre el piso. El orden `Rx · Ry · Rz` aplica `Rz` primero, lo que permite, por ejemplo, **bajar el brazo con `Rz = ±78°` y balancearlo después con `Rx`**.
 
-`SetModel()` envía cada matriz antes de `Aspa.Draw()`. Al apagar N el ángulo se conserva y al reactivar continúa. El resultado previsto es giro local Z con sentido alternado; el contacto de las sierras con otros objetos no tiene consecuencias. Hace falta observar una ejecución para confirmar la alineación final de los pivotes.
+### 8.3 Cámara y proyección
 
-### 9.2. SENTINEL: barrido, disparo y retroceso
+La vista es `V = lookAt(camPos, camMira, (0,1,0))`. La proyección es `P = perspective(fov, ancho/alto, 0.1, 1000)`, con el fov efectivo de ≈ 58.3° (ver sección 4).
 
-B controla `animScarface` y el avance de `tScar`. Para cada índice i=0,1,2 se suma `offSentinel[i]` a `posSentinel`. La diferencia d entre `posCuau` y esa posición produce `yawBase=degrees(atan2(-d.z,d.x))`, porque el cañón se considera orientado hacia +X local.
+### 8.4 Interpolación y suavizado
 
-$$b_i(t)=60\sin(1.5t+0.9i),\qquad c_i(t)=\operatorname{fmod}(t+0.15i,0.45).$$
+| Fórmula | Uso |
+|---|---|
+| `Suave(u) = u²(3 − 2u)` | Arranque y frenado suaves |
+| `Rampa(t, a, b) = Suave(clamp((t − a)/(b − a), 0, 1))` | Progreso de una acción entre `a` y `b` |
+| `mix(a, b, s) = a(1 − s) + b·s` | Interpolación lineal (cámara, ángulos) |
+| `slerp(q₀, q₁, s)` | Interpolación esférica de rotaciones (`MezclaMat`) |
 
-`t` es `tScar` en segundos; b es barrido en grados, de amplitud ±60° y periodo aproximado 4.19 s; c es el tiempo dentro de un ciclo de disparo de 0.45 s. Las fases dependen del índice para desfasar las instancias. La matriz del cuerpo incluye traslación, yaw base más barrido y escala.
+**Viaje de cámara.** Con `u = clamp(tFase/durCam, 0, 1)` y `s = Suave(u)`: `camPos = mix(camDesde, destino.cam, s)` y `camMira = mix(miraDesde, destino.mira, s)`.
 
-El destello está activo si B está habilitada y `c_i<0.07`. El retroceso es:
+### 8.5 Movimiento periódico y giro por el camino más corto
 
-$$r_i=\begin{cases}0.8(1-c_i/0.12),& c_i<0.12\text{ y animación activa},\\0,&\text{en otro caso}.\end{cases}$$
+Los balanceos usan `sin`/`cos` con frecuencia `ω`. Para que un personaje gire hacia una dirección sin dar vueltas de más: `dif = fmod(objetivo − yaw + 540, 360) − 180` y `yaw += dif · min(1, 10·dt)`.
 
-r se mide en unidades locales; se aplica con `translate(mSent[i],(-r_i,0,0))` únicamente al railgun. El máximo aparece al inicio del ciclo y se recupera linealmente durante 0.12 s. Mientras hay destello, todo el cuerpo recibe vibración vertical `0.08*sin(120*tScar)`. No es una respuesta física a masa o fuerza.
+### 8.6 Iluminación de Phong
 
-La primera instancia con destello transforma `bocaLocal=(9,9,0)` usando también el retroceso. Esa posición se envía a `pointLights[0]`. La componente difusa cálida es (3,1.8,0.6), y la atenuación usa constante 1, lineal 0.022 y cuadrática 0.0019:
+Para cada luz, con normal `N`, dirección a la luz `L`, dirección al observador `V` y reflejo `R = reflect(−L, N)`:
 
-$$a(d)=\frac{1}{1+0.022d+0.0019d^2}.$$
+```
+ambiente  = luz.ambient · textura
+difuso    = luz.diffuse · max(N·L, 0) · textura
+especular = luz.specular · max(V·R, 0)^brillo · textura_especular
+```
 
-d es la distancia entre fragmento y luz en `CalcPointLight`. Sin destello se envían intensidades cero. No se dibuja una malla luminosa de boca ni un proyectil; el efecto visible depende de las superficies iluminadas y sus materiales. Las ventanas temporales breves pueden no aparecer en todos los fotogramas si el intervalo entre ellos es grande.
+La luz puntual se atenúa con `1 / (kc + kl·d + kq·d²)`, y la de foco además con un cono entre `cutOff` y `outerCutOff`.
 
-Al apagar B, `tScar` queda detenido pero las expresiones condicionadas suprimen barrido, retroceso, vibración y luz. Se sigue calculando yaw base, que puede cambiar si se mueven los grupos. Por tanto, B no congela la última pose completa. El seguimiento usa `posCuau` sin offset de esquive.
+---
 
-### 9.3. CUAU-68: desplazamiento evasivo
+## 9. Modelado jerárquico por partes
 
-V controla `animEsquive`. Cuando está activa se acumula `tEsq` y se obtiene:
+**Convención de ejes (en el OBJ):** los personajes **miran a +Z**, **+X es su izquierda** y **+Y es arriba**. En Blender el frente es −Y; el exportador lo convierte a +Z. Un giro `+X` en una extremidad que cuelga la lleva **hacia atrás**; `−X` hacia delante.
 
-$$o(t)=(6\sin(2t),\ 1.2|\sin(4t)|,\ 4\sin(0.7t)).$$
+### 9.1 CUAU-68 (16 piezas)
 
-`o` corresponde a `cuauOffset`; t es `tEsq`. X oscila entre −6 y 6, Z entre −4 y 4 y Y entre 0 y 1.2 unidades respecto de `posCuau`. El desplazamiento lateral tiene periodo π s; el de Z, aproximadamente 8.98 s; el salto, por el valor absoluto, π/4 s. El zigzag es una curva suave producida por senos, no una trayectoria de segmentos rectos. El salto no es parabólico y su cambio de velocidad vertical al tocar la base no se resuelve mediante física.
+| Pieza | Padre | Offset al pivote del padre (x, y, z) |
+|---|---|---|
+| `pelvis` (raíz) | — | (0, 0, 0) |
+| `torso` | pelvis | (0, 1.94, −0.01) |
+| `luz68` | torso | (0, 0, 0) |
+| `cabeza` | torso | (0, 2.12, 0.02) |
+| `visor` | cabeza | (0, 0, 0) |
+| `luces_casco` | cabeza | (0, 0, 0) |
+| `brazo_sup_izq` / `_der` | torso | (±1.86, 0.89, −0.34) |
+| `antebrazo_izq` / `_der` | brazo_sup | (±3.16, −0.06, −0.31) |
+| `muslo_izq` / `_der` | pelvis | (±0.97, −0.45, −0.20) |
+| `pantorrilla_izq` / `_der` | muslo | (±0.34, −4.42, −0.29) |
+| `pie_izq` / `_der` | pantorrilla | (±0.19, −5.18, −0.69) |
 
-Las derivadas horizontales son `vx=12*cos(2t)` y `vz=2.8*cos(0.7t)`. La orientación objetivo se calcula como `degrees(atan2(vx,vz))`. Para evitar un giro largo al cruzar ±180° se calcula una diferencia angular envuelta:
+`visor` (ojos amarillos), `luces_casco` (el cráneo rojo) y `luz68` (el «68» del pecho) son piezas **aparte** para poder encenderlas.
 
-$$d_\psi=\operatorname{fmod}(\psi_{obj}-\psi+540,360)-180,\quad k=\min(10\Delta t,1),\quad\psi'=\psi+k d_\psi.$$
+### 9.2 SENTINEL (13 piezas)
 
-ψ es `cuauYaw`, ψobj el objetivo y k el factor de aproximación. Esta actualización suaviza el giro sin una velocidad angular constante. La inclinación `cuauTilt=15*cos(2t)` se aplica alrededor de Z. La matriz final es `T(posCuau+cuauOffset) Ry(cuauYaw+CUAU_YAW_OFFSET) Rz(cuauTilt) S(CUAU_ESC)`.
+Mismas 12 piezas comunes que CUAU (con otros *offsets*: torso `(0, 1.92, 0)`, brazo `(±1.86, 1.11, −0.35)`, antebrazo `(±3.00, −0.08, −0.31)`, muslo `(±1.11, −0.48, −0.20)`, pantorrilla `(±0.20, −3.32, −0.29)`, pie `(±0.19, −5.18, −0.69)`), más el **railgun**, hijo del antebrazo derecho en `(−3.70, 0, 0)`. El torso incluye cabeza y mochila, y el brazo superior izquierdo lleva la placa de texto.
 
-Si V se apaga, offset y ángulos se conservan; las teclas del grupo aún cambian su base. El modelo OBJ tiene pose fija y se desplaza como unidad. La aparente evasión no consulta el estado de los railguns, por lo que no se demuestra una reacción a disparos ni una lógica de inteligencia artificial.
+### 9.3 Obrero (2 piezas)
 
-## 10. Pipeline de renderizado
+`obrero_cuerpo` (raíz, origen en los pies) y `obrero_brazo` (hijo, pivote del hombro derecho en `(−0.30, 1.45, 0)`), con el martillo ya en la mano. Hay dos variantes de color: UNAM (azul y dorado) e IPN (blanco y vino).
 
-1. Antes de `main()`, se inicializan las variables globales y la cámara con GLM. Esto no crea una ventana ni requiere dibujar.
-2. GLFW se inicializa, crea la ventana y activa su contexto. Se consulta framebuffer y se registran callbacks de teclado y ratón; se captura el cursor.
-3. GLAD obtiene punteros a funciones OpenGL. Se define el viewport con las dimensiones consultadas.
-4. `Shader` lee `lighting.vs` y `lighting.frag`, compila, enlaza y conserva el identificador del programa. No se usa la pareja `modelLoading` por el hecho de cargar modelos.
-5. Assimp lee los seis OBJ, triangula caras e invierte UV. `Model` recorre nodos, crea vértices e índices y obtiene materiales. SOIL2 decodifica imágenes; GLM aporta los vectores usados en tintes y transformaciones. `Mesh` sube geometría a buffers.
-6. Se activa el shader, se intentan asignaciones iniciales de samplers y se calcula P. Las discrepancias de nombres y ángulo se describen en secciones anteriores.
-7. En cada fotograma se obtiene el tiempo, se calcula delta y se llama a `glfwPollEvents()`. Los callbacks actualizan estados que consumen `DoMovement()` y `Animation()`.
-8. Se establece el color de fondo y se limpian color y profundidad. Se habilita `GL_DEPTH_TEST`; el programa lo hace después de la limpieza en cada iteración. Se activa el programa de iluminación.
-9. Se envían posición de cámara y luz direccional. Se construyen matrices de los SENTINEL para decidir retroceso y luz puntual; se apaga el foco y se envían vista y proyección.
-10. Se dibuja plaza, CUAU, tres pares SENTINEL/railgun y cuerpo MAC con tres aspas. Antes de cada recurso se cambia M. Por cada malla se enlazan texturas y VAO y se dibujan triángulos indexados.
-11. El vertex shader transforma vértices; OpenGL ensambla y rasteriza triángulos; el fragment shader evalúa luces y texturas y el test de profundidad resuelve superficies. `glfwSwapBuffers()` presenta el buffer resultante.
-12. La condición `glfwWindowShouldClose()` decide si se repite el ciclo. Al salir normalmente se ejecuta `glfwTerminate()` y termina el proceso.
+### 9.4 Cómo se obtuvieron los pivotes
 
-El [flujo editable](diagramas/flujo_software.drawio) y su [versión Mermaid](diagramas/flujo_software.mmd) muestran las ramas de error y el retorno del ciclo. Una solicitud de cierre recibida en `PollEvents()` puede permitir completar el fotograma en curso antes de comprobar la condición otra vez.
+En Blender se aplicaron los modificadores *Mirror*, se separaron izquierda y derecha por el signo de X y se trasladó cada pieza para que su origen quedara en la articulación (calculada como el centro de la geometría de la pieza articular). `Models/*/partes/pivotes.txt` guarda cada pivote y su desplazamiento respecto al padre, y de ahí salen las tablas de arriba. Las 12 piezas comunes comparten índice en ambos personajes, por lo que una misma función de pose sirve para los dos.
 
-## 11. Pruebas
+---
 
-### 11.1. Verificaciones efectuadas
+## 10. Máquina de estados del relato
 
-Se leyeron `main.cpp`, cabeceras locales, `dependencias/Shader.h`, shaders y CMake, se identificaron los recursos cargados y se consultó el historial específico. Se verificó en el GLM incluido que la perspectiva calcula la tangente del argumento angular sin convertirlo. La consulta `cmake --version` devolvió comando no disponible en PowerShell. Estas evidencias respaldan el análisis estático, no una aprobación funcional.
+![Máquina de estados del relato](diagramas/maquina_de_estados.png)
 
-### 11.2. Matriz de ejecución pendiente
+*Versión editable: [`diagramas/maquina_de_estados.mmd`](diagramas/maquina_de_estados.mmd).*
 
-Las celdas de resultado observado se dejan vacías porque no se ejecutaron estos casos. Al completarlas, adjuntar sistema operativo, GPU/controlador, versiones de bibliotecas, commit, registro de consola y capturas. Usar aprobado, fallido o bloqueado solo con evidencia del caso correspondiente.
+### 10.1 Estados y transiciones
 
-| Identificador | Prueba | Procedimiento | Resultado esperado | Resultado observado | Estado |
+| Estado | Qué ocurre | Entrada aceptada | Sale cuando |
+|---|---|---|---|
+| `F_TEXTO` | Se muestra la historia (hasta 3 páginas) | `Enter` | Se agotan las páginas |
+| `F_CAMARA` | La cámara viaja al destino de la escena | Ninguna | `tFase ≥ durCam` |
+| `F_ESPERA` | Recuadro de acción | La tecla de la escena | Se pulsa la tecla correcta |
+| `F_ANIMA` | Corre la animación | Ninguna | `tAnim ≥ DurAnim(escena)` |
+| `F_FIN` | «Presiona ENTER para continuar» | `Enter` | Se pasa a la escena siguiente |
+
+**Orden normal:** `TEXTO → CAMARA → ESPERA → ANIMA → FIN`.
+
+**Excepciones**
+
+- **Escenas 0 y 9** (`textoDespues`): `CAMARA → TEXTO → FIN`.
+- **Escena 1:** `ESPERA` se repite tres veces (un martillazo cada `Espacio`, con `golpesObr` de 0 a 3); con el tercero, el siguiente `Espacio` pasa a `ANIMA`.
+- **Escena 2:** al terminar `CAMARA` pasa directo a `ANIMA` (automática).
+- **Escena 4:** `ANIMA` vuelve a `ESPERA` hasta completar la secuencia `← → ←` (`pasoEsq` de 0 a 3). Una flecha equivocada activa el aviso `avisoT` y no cambia de estado.
+- En `FIN` de la escena 9, `Enter` cierra el programa (`cerrarRelato`).
+
+### 10.2 Las 10 escenas
+
+| # | Escena | Actores visibles | Acción del usuario | Duración de `ANIMA` | Viaje de cámara |
 |---|---|---|---|---|---|
-| PT-01 | Configuración y compilación | Seguir comandos del manual de usuario y compilar el target | CMake encuentra bibliotecas y produce `proyecto_lab_main` | | Pendiente |
-| PT-02 | Creación de ventana | Ejecutar desde `build/proyecto_lab` | Ventana solicitada 1280 × 720, título correcto y sin error GLFW | | Pendiente |
-| PT-03 | Inicialización OpenGL | Ejecutar con controlador compatible; conservar registro | GLAD carga y GLSL 330 puede compilarse | | Pendiente |
-| PT-04 | Carga de shaders | Revisar consola al arrancar y comprobar ambos `lighting.*` | Sin errores de compilación o enlace; objetos con iluminación | | Pendiente |
-| PT-05 | Carga de modelos | Revisar consola y localizar seis recursos en escena | Sin errores Assimp; plaza y personajes presentes | | Pendiente |
-| PT-06 | Renderizado de plaza | Recorrer iglesia, edificio, vestigios y lápida | Geometría visible, profundidad coherente; registrar diferencias de material | | Pendiente |
-| PT-07 | Cámara | Probar WASD, flechas y ratón, incluyendo vista elevada | Traslación relativa y giro limitado en pitch; sin zoom de rueda | | Pendiente |
-| PT-08 | Selección y traslación | Ciclar TAB; probar J/L, I/K, U/O en cada grupo y P | Orden CUAU/SENTINEL/MAC; traslaciones por ejes y posiciones en consola | | Pendiente |
-| PT-09 | MAC | Observar sierras; pulsar N, esperar y reactivar | Giro +/−/+; pausa conserva ángulo y luego continúa | | Pendiente |
-| PT-10 | SENTINEL | Observar varios ciclos; alternar B y mover base CUAU | Barrido, retroceso y luz; apagado elimina efectos y conserva seguimiento base | | Pendiente |
-| PT-11 | CUAU-68 | Observar recorrido; desactivar V durante salto y mover su grupo | Oscilación e inclinación; pausa conserva pose y permite mover base | | Pendiente |
-| PT-12 | Controles simultáneos | Mover cámara y un grupo con animaciones habilitadas | Entradas independientes; documentar cualquier desplazamiento inesperado | | Pendiente |
-| PT-13 | Cierre | Ejecutar una vez con Escape y otra con botón de cierre | Finaliza ciclo y desaparece ventana sin bloqueo | | Pendiente |
-| PT-14 | Recursos y diagnóstico | En copia de prueba, ejecutar desde directorio sin recursos, sin modificar originales | Registrar mensajes reales de shader/Assimp; no asumir recuperación automática | | Pendiente |
+| 0 | Introducción | Ninguno | `Enter` | — | 5.0 s |
+| 1 | Obreros | Obreros y CUAU (acostado) | `Espacio` ×3, y `Espacio` | 4.2 s | 4.0 s |
+| 2 | Salen los SENTINEL | 3 SENTINEL | Ninguna (automática) | 7.0 s | 4.0 s |
+| 3 | CUAU levanta la MAC | CUAU y MAC | `Espacio` | 3.8 s | 3.5 s |
+| 4 | Sprint esquivando | CUAU (malla de pose) y 3 SENTINEL (mallas `aim`) | `←` `→` `←` | 2.2 s por esquive | 4.0 s |
+| 5 | Azote | CUAU, MAC y SENTINEL 1 | `Espacio` | 3.4 s | 3.5 s |
+| 6 | Puñetazo | CUAU y SENTINEL 2 | `Espacio` | 3.2 s | 0.8 s |
+| 7 | Azote final | CUAU, MAC y SENTINEL 3 | `Espacio` | 3.4 s | 0.8 s |
+| 8 | Victoria | CUAU, MAC, 3 SENTINEL caídos y 3 railguns | `Espacio` | 3.6 s | 4.0 s |
+| 9 | Lápida | Ninguno | `Enter` | — | 5.0 s |
 
-No se ensayaron deliberadamente fallos de controlador ni se midieron FPS. La revisión editorial y estructural de estos documentos se registra en [README](README.md), separada de las pruebas del programa.
+Al cambiar de escena **se ocultan todos los actores y se muestran solo los de la nueva**; el escenario (la plaza) nunca se borra.
 
-## 12. Conclusiones
+### 10.3 Algoritmo por cuadro (`ActualizarRelato`)
 
-La inspección permite identificar una integración concreta entre geometría importada y transformaciones calculadas durante el ciclo de dibujo. Los personajes no dependen de volver a cargar sus archivos para cambiar de posición: conservan sus mallas y reciben matrices distintas antes de dibujarse. La reutilización del railgun, del cuerpo SENTINEL y del aspa muestra cómo un recurso puede participar en varias instancias con estados espaciales diferentes. La plaza, en cambio, se mantiene como un conjunto estático de mallas.
+```
+tReloj += dt;  tFase += dt
+si fase == CAMARA:   interpolar cámara; si llegó → TrasCamara()
+si fase en {ANIMA, FIN}: tAnim += dt
+si fase == ANIMA y tAnim ≥ DurAnim(escena):
+    escena 4: pasoEsq++; tAnim = 0; fase = (pasoEsq ≥ 3) ? FIN : ESPERA
+    resto:    fase = FIN
+ocultar todos los actores; poner todos los rigs en PoseReposo
+si la escena aún no debe mostrarse (TEXTO de escenas 1 a 8): terminar
+según la escena: marcar actores visibles y calcular posiciones y poses con t = min(tAnim, DurAnim)
+sumar los ajustes del modo edición (edOff)
+```
 
-Las animaciones permiten analizar tres relaciones distintas entre tiempo y geometría. MAC acumula un ángulo a velocidad constante y hereda la matriz del cuerpo para colocar sus sierras. SENTINEL combina una orientación base con una oscilación y divide el tiempo en ventanas de retroceso e iluminación. CUAU calcula una trayectoria a partir de senos y obtiene de sus derivadas una orientación aproximada. Estas relaciones explican el movimiento previsto sin atribuirlo a una simulación física o a una reacción autónoma. Constituyen contenido de aprendizaje observable en la implementación; no sustituyen la reflexión personal que todavía debe aportar el equipo.
+La entrada del teclado la procesa `ProcesarTeclaRelato` y **solo en `TEXTO`, `ESPERA` y `FIN`**; en `CAMARA` y `ANIMA` se ignora.
 
-La conexión entre materiales y shaders requiere una revisión especial. Importar correctamente una imagen no basta para demostrar que el sampler adecuado la consulte. La discrepancia de nombres de uniformes, el brillo sobrescrito y el argumento angular de la proyección son hallazgos que una descripción basada únicamente en la apariencia podría omitir. Su registro permite plantear pruebas dirigidas y delimita el estado real de la versión documentada.
+---
 
-No se concluye que el programa haya superado compilación, ejecución o evaluación visual en este entorno. Para cerrar esa validación se necesitan los resultados de la matriz de pruebas, capturas reales y datos del equipo de ejecución. La comparación arquitectónica también requiere vistas equivalentes del lugar y del modelo. Con esas evidencias podrá evaluarse la correspondencia visual y completar las conclusiones del equipo sin convertir expectativas de funcionamiento en resultados comprobados.
+## 11. Animaciones
 
-## 13. Fuentes de implementación
+Todas se generan **por código**, sin fotogramas clave ni videos. Las cinco oficiales:
 
-- [`main.cpp`](../proyecto_lab/main.cpp): estado, entrada, animación y ciclo de dibujo.
-- [`Camera.h`](../proyecto_lab/Camera.h), [`Model.h`](../proyecto_lab/Model.h) y [`Mesh.h`](../proyecto_lab/Mesh.h): clases utilizadas.
-- [`Shader.h`](../dependencias/Shader.h), [`lighting.vs`](../proyecto_lab/Shader/lighting.vs) y [`lighting.frag`](../proyecto_lab/Shader/lighting.frag): carga y ejecución gráfica.
-- [Perspectiva en GLM](../dependencias/glm/glm/ext/matrix_clip_space.inl), [configuración raíz](../CMakeLists.txt) y [configuración del proyecto](../proyecto_lab/CMakeLists.txt).
-- [Resumen de inspección](Resumen_Tecnico.md): alcance de evidencia y diferencias identificadas.
+| N.º | Animación | Tipo | Dónde |
+|---|---|---|---|
+| 1 | Giro de las sierras de la MAC | Sencilla | Escenas 3, 5, 7 y 8 |
+| 2 | Luces del casco de CUAU-68 | Sencilla | Escenas 1, 3 y 5 a 8 |
+| 3 | Caída del SENTINEL con rebote | Sencilla | Escenas 5, 6 y 7 |
+| 4 | Barrido de los SENTINEL con disparo | **Compleja** | Escena 4 |
+| 5 | Sprint esquivando de CUAU-68 | **Compleja** | Escena 4 |
+
+### 11.1 Animación 1 — Giro de las sierras (sencilla)
+
+**Contexto.** La MAC lleva tres hojas circulares de obsidiana; girar da la idea de una sierra mecánica activa. Gira en sentidos alternos para parecer una cadena de piñones.
+
+```
+rotAspa += 540°/s · dt                       (Animation(), cuando animSierras)
+aspa i:  ángulo = (−1)^i · rotAspa           alrededor del eje Z de la MAC
+         posición = (16, ASPA_Y[i], 0),  ASPA_Y = {0.30, 2.85, 5.40}
+```
+
+Cada aspa se dibuja con la matriz de la MAC trasladada a su centro y girada. Las sierras se activan en la escena 3 al terminar de levantar la MAC, y siguen activas en las escenas 5, 7 y 8.
+
+### 11.2 Animación 2 — Luces del casco (sencilla)
+
+**Contexto.** Al despertar, el visor, las luces del casco y el «68» se encienden: es el momento en que CUAU-68 «cobra vida».
+
+```
+pulso    = 0.5 + 0.5·sin(3·tReloj)                        brillo senoidal
+luces    = Rampa(t, 2.0, 2.8) · pulso     (escena 1; luego luces = pulso)
+```
+
+Las piezas con `luz = true` (`visor`, `luces_casco`, `luz68`) se dibujan con `emissive = luces` y `brillo = 0.15 + 0.85·luces`. En el shader: `color = resultado·brillo + emissive·albedo`. Apagadas se ven oscuras (`brillo = 0.15`); encendidas, brillan con su propio color y **palpitan con el seno**.
+
+### 11.3 Animación 3 — Caída del SENTINEL (sencilla)
+
+**Contexto.** Tras recibir el golpe, el SENTINEL cae de espaldas y rebota levemente contra el piso.
+
+`t` = segundos desde el impacto (1.35 s en las escenas 5 y 7; 1.45 s en la 6):
+
+```
+f(t) = 0                                  t ≤ 0
+       (t/0.55)²                          0 < t < 0.55      cae acelerando
+       1 − 0.12·sin(π·(t − 0.55)/0.25)    0.55 ≤ t < 0.80   rebote
+       1                                  t ≥ 0.80          en el suelo
+ángulo = −90° · f        sobre el eje X local, con pivote en los pies
+elevación = 2.4 · escala · sin(−ángulo)    para que el cuerpo no se hunda en el piso
+```
+
+### 11.4 Animación 4 — Barrido de los SENTINEL (compleja)
+
+**Contexto.** Los tres SENTINEL apuntan a CUAU-68 y le disparan mientras corre. No hay balas: el disparo se **representa** con la sincronización de cuatro efectos.
+
+**Por qué es compleja.** Combina varias partes coordinadas (cuerpo y arma), una **luz dinámica** que se mueve con el arma y tiempos desfasados por personaje; no es una trayectoria lineal ni una rotación sencilla.
+
+Para el SENTINEL `i` (0, 1, 2) y el tiempo `tScar`:
+
+```
+yawBase  = atan2(d.x, d.z)            d = posCuau − posSentinel[i]        (apunta a CUAU)
+barrido  = A · sin(1.5·tScar + 0.9·i)   A = 14° en el relato (60° en el banco de pruebas)
+ciclo    = fmod(tScar + 0.15·i, 0.45)                                    un disparo cada 0.45 s
+destello = ciclo < 0.07
+retroceso = (1 − ciclo/0.12) · RETROCESO_MAX        si ciclo < 0.12      (RETROCESO_MAX = 0.8)
+vibración = 0.08 · sin(120·tScar)                    solo durante el destello (vertical)
+giro final = yawBase + barrido
+```
+
+- El railgun se desplaza `−retroceso` sobre su eje de disparo (Z local), de modo que **retrocede y regresa**.
+- La **luz puntual** se coloca en la boca del arma, `luz = M · T(0, 0, −retroceso) · bocaLocal`, solo durante el destello del primer SENTINEL que dispara; con ambiente `(0.4, 0.25, 0.1)`, difuso `(3.0, 1.8, 0.6)`, especular `(1.0, 0.8, 0.4)` y atenuación `(1, 0.022, 0.0019)`. Fuera del destello la luz vale 0.
+
+### 11.5 Animación 5 — Sprint esquivando de CUAU-68 (compleja)
+
+**Contexto.** CUAU-68 corre hacia los SENTINEL bajando de la pirámide y esquiva los disparos: cada tecla `←` o `→` lanza **un esquive** hacia ese lado de la pantalla.
+
+**Por qué es compleja.** La trayectoria no es lineal: suma avance, un desplazamiento lateral curvo, un salto y una inclinación, y el giro del cuerpo **sigue la velocidad** con suavizado, con la altura del piso variable.
+
+Con `E4_INICIO`, `E4_FIN` el recorrido, `largo = |E4_FIN − E4_INICIO|` (en el plano), `dirAv` su dirección unitaria, `derCam` la derecha de la pantalla en el piso (`(−v.z, 0, v.x)` normalizado, con `v = mira − cam`), `T = 2.2 s` y `u = tAnim/T` en [0, 1]:
+
+```
+lado[k]   = −1, +1, −1                                   (k = 0, 1, 2: ←, →, ←)
+adelante  = (esquives hechos + u) · largo/3              cada esquive avanza un tercio
+lateral   = lado[k] · 4 · sin(π·u)                       sale 4 unidades y regresa
+salto     = 1.6 · sin(π·u)
+posición  = E4_INICIO + dirAv·adelante + derCam·lateral + (0, AlturaPiso4(x) + salto, 0)
+velocidad = dirAv·(largo/3/T) + (derCam·lado[k])·(4π/T)·cos(π·u)
+objetivo  = atan2(velocidad.x, velocidad.z)
+yaw      += dif · min(1, 10·dt),   dif = fmod(objetivo − yaw + 540, 360) − 180
+inclinación = 18° · sin(π·u) · (+1 si el esquive va hacia la derecha del personaje; −1 si no)
+```
+
+`AlturaPiso4(x)` vale 1.85 para `x ≤ −7` (plataforma), 0.04 para `x ≥ −3.3` y baja linealmente entre ambos (los escalones).
+
+### 11.6 Movimientos de apoyo
+
+| Movimiento | Dónde | Descripción |
+|---|---|---|
+| **Martillazo** | Escena 1 | `AnguloMartillo(t)`: levanta el brazo a −165° (0 a 0.40 s, con `Suave`), golpea a −40° (0.40 a 0.50 s, `−165 + 125u²`), rebota a −62° (0.50 a 0.60 s) y regresa a 0 (0.60 a 0.95 s). Los seis obreros se desfasan `0.08·i` s |
+| **Despertar** | Escena 1 | `lev = Rampa(t, 0.2, 3.0)`; la inclinación del cuerpo es `−90°·(1 − lev)`, con la elevación `2.9·escala·sin(−inclinación)` para no hundirse |
+| **Caminata** | Escena 2 | `PoseCaminar(t, 24°, 6.5)`: muslo `∓A·sen(ωt)`, rodilla `1.3·A·max(0, ±cos(ωt))`, pie `−0.7·(muslo + rodilla)`, brazos `±0.7·A·sen(ωt)` con `Rz = ±78°` y contragiro del torso `4°·sen(ωt)`. Los SENTINEL salen con 1.4 s de diferencia y `z = max(12.5 − 5·tt, zAlto) + desplazamiento` |
+| **Levantar la MAC** | Escena 3 | `b = Rampa(t, 0.3, 3.0)`: brazo `mix(−35°, −80°, b)`, antebrazo `mix(75°, 80°, b)`, cabeza `−30°·b` (mira hacia arriba) |
+| **Azote** | Escenas 5 y 7 | `a = Rampa(t, 0.2, 1.1)`, `s = Rampa(t, 1.1, 1.4)`, `r = Rampa(t, 2.0, 3.2)`: brazo `mix(mix(−170a, −95, s), −60, r)`, antebrazo `25a(1 − s)`, torso `20s(1 − r)`; camina 4 unidades hacia donde mira y el SENTINEL cae desde `t = 1.35` |
+| **Puñetazo** | Escena 6 | `w = Rampa(t, 1, 1.3)`, `h = Rampa(t, 1.3, 1.5)`: brazo izquierdo `mix(mix(0, 25, w), −90, h)`, codo `mix(mix(0, −110, w), −5, h)`; el SENTINEL cae desde `t = 1.45` |
+| **Victoria** | Escena 8 | `a = Rampa(t, 0.3, 2.0)`: brazo derecho `−150°·a`, antebrazo `20°·a`, cabeza `−28°·a`, torso `−8°·a` |
+
+### 11.7 Coherencia con el contexto
+
+| Animación | Por qué tiene sentido en la historia |
+|---|---|
+| Sierras | La MAC es una arma de obsidiana: el giro la «activa» |
+| Luces del casco | Es el despertar de CUAU-68 |
+| Caída | Consecuencia del golpe; el rebote le da peso |
+| Barrido | Los SENTINEL disparan sin cesar a un blanco que se mueve |
+| Sprint | CUAU-68 esquiva el fuego mientras avanza hacia sus agresores |
+
+---
+
+## 12. Renderizado e iluminación
+
+### 12.1 Orden de dibujo de cada cuadro
+
+1. Limpiar color y profundidad (cielo `(0.53, 0.74, 0.90)`) y activar la prueba de profundidad.
+2. Activar el shader de la escena y enviar: `viewPos`, las luces, `material.shininess`, `transparency`, `emissive = 0` y `brillo = 1`, y las matrices `view` y `projection`.
+3. Dibujar la plaza (`model = escala 1`).
+4. `DibujarRelato`: obreros, CUAU, MAC y SENTINEL.
+5. **Pasada del HUD:** desactivar la profundidad, activar la mezcla `SRC_ALPHA / ONE_MINUS_SRC_ALPHA` y dibujar el recuadro de texto o de acción con el shader `hud`.
+6. Intercambiar buffers.
+
+### 12.2 Luces
+
+| Luz | Parámetros |
+|---|---|
+| Direccional | dirección `(−0.3, −1.0, −0.4)`; ambiente `0.5`; difuso `0.8`; especular `0.1` |
+| Puntual (destello) | ver sección 11.4 |
+| De foco | Apagada (todo en 0) |
+
+### 12.3 Texturas del HUD
+
+Las imágenes del texto se cargan con SOIL2 y se dibujan con filtro lineal **sin mipmaps** (texto nítido). Se generan al **doble** de resolución y se dibujan a la mitad, con un ancho máximo de 1180 px lógicos. El panel tiene fondo translúcido y borde dorado; los recuadros de acción, letras amarillas.
+
+---
+
+## 13. Modelos, materiales y texturas
+
+### 13.1 Flujo de producción
+
+1. **Modelado en Blender** de CUAU-68, SENTINEL, MAC y obreros; la plaza se recibió ya modelada (Víctor).
+2. **Composición de texturas.** El exportador OBJ solo conserva una imagen conectada directamente a *Base Color*, mientras los materiales originales mezclaban una textura de metal oxidado con una pintura semitransparente. Por eso, para cada material se **compone un PNG** con la misma matemática de los nodos, en **espacio lineal**:
+   ```
+   resultado = mezcla(base, pintura, alfa_de_la_pintura)  =  base·(1 − α) + pintura·α
+   base escalada por Valor (nodo Hue/Saturation/Value)    = base·V
+   (conversión: lineal = ((c + 0.055)/1.055)^2.4 ; sRGB = 1.055·c^(1/2.4) − 0.055)
+   ```
+   Para los emblemas del SENTINEL, que usaban una segunda capa de UV, se hizo una **reproyección** de cada texel de la UV del emblema a la UV de la placa (coordenadas baricéntricas), y así el OBJ conserva una sola UV.
+3. **Exportación OBJ** (frente −Z, arriba Y, triangulado, con normales y UV), tanto de la malla de pose como de las **piezas por partes** con origen en el pivote.
+
+### 13.2 Inventario de modelos
+
+| Conjunto | Archivos | Vértices (aprox.) | Texturas | Origen |
+|---|---|---|---|---|
+| Plaza | `plaza/plaza.obj` | 56 924 | 4 JPG (hay 12 de 43 materiales con imagen; el resto usa color plano) | Víctor |
+| CUAU-68 (malla de pose) | `CUAU-68/cuau_sprint.obj` | 4 230 | 11 PNG compuestos + `images.jpeg` | Propio |
+| CUAU-68 (16 piezas) | `CUAU-68/partes/*.obj` | 4 230 en total | Las mismas | Propio |
+| SENTINEL (malla de pose) | `SENTINEL/sentinel_aim.obj` | 5 954 | 6 PNG + `fuelle.jpeg` | Propio |
+| SENTINEL (13 piezas) | `SENTINEL/partes/*.obj` | 7 166 en total (incluye la placa de texto) | Las mismas | Propio |
+| Railgun (pose) | `SENTINEL/railgun_aim.obj` | 572 | Color plano | Propio |
+| MAC | `MAC/mac_cuerpo.obj`, `aspa.obj` | 472 y 2 760 | `obsidian.png` y 3 PNG | Propio |
+| Obreros | `OBRERO/obrero_*` (6 OBJ) | 312 por variante | Colores planos | Propio |
+
+Son **41 archivos OBJ**; el más grande, la plaza, pesa 10.9 MB. Ningún archivo del repositorio supera los **100 MB** que fija el reglamento (el mayor es de 11.2 MB).
+
+### 13.3 Objetos evaluables (requisito de ≥ 7 objetos)
+
+Los objetos repetidos cuentan como uno; puertas, ventanas y escaleras no cuentan.
+
+| # | Objeto | Fuente en el modelo | Vértices / triángulos | Materiales y texturas |
+|---|---|---|---|---|
+| 1 | Templo de Santiago (fachada) | `iglesia_por_fuera` | 17 289 / 33 260 | Piedra de iglesia (`rock_wall_08`), cantera, madera, hierro, mármol, bronce y vitral en color plano |
+| 2 | Edificio Chihuahua | Familia `PASEO_CHIHUAHUA` (259 objetos) | 2 072 / 3 108 | Concreto (`concrete_wall_006`), paneles amarillos (`plastered_wall_02`) y vidrio azul gris |
+| 3 | Zona arqueológica (plataformas) | Familia `PASEO_VESTIGIOS` (56 objetos) | 528 / 832 | Piedra de vestigios y escalinatas (`rock_wall_08`) |
+| 4 | Árbol | `arbol` y 22 copias | 8 970 / 17 572 en total | Tronco y copa, en color plano |
+| 5 | Banca | `banca` y `banca.001` | 48 / 72 | Concreto (`concrete_wall_006`) |
+| 6 | Reja | `barda` | 632 / 1 208 | Metal grafito, color plano |
+| 7 | Lápida conmemorativa | `lapida` | 24 / 36 | Piedra (`rock_wall_08`) y color plano |
+| 8 | CUAU-68 | `cuau_sprint.obj` y piezas | 4 230 / 8 036 | 11 texturas compuestas |
+| 9 | SENTINEL | `sentinel_aim.obj` y piezas | 5 954 / 7 281 | 6 texturas compuestas |
+| 10 | MAC | `mac_cuerpo.obj` y `aspa.obj` | 3 232 / 6 204 | `obsidian.png` y metales oxidados |
+| 11 | Railgun | `railgun_aim.obj` | 572 / 1 108 | Color plano |
+| 12 | Obrero | `obrero_*` | 312 / 540 | Colores planos |
+
+**[PENDIENTE: la comparación visual con las fotografías de referencia (requisito R1) está en `referencias/Comparativa_Tlatelolco.md`, con las capturas del modelo por completar.]**
+
+### 13.4 Inventario de texturas
+
+| Carpeta | Imágenes |
+|---|---|
+| `Models/plaza` | 4 JPG de 1 K: concreto, pasto, aplanado y roca |
+| `Models/CUAU-68` | 13 imágenes (12 PNG compuestos y `images.jpeg`, más `glass.jpg` ya sin uso) |
+| `Models/SENTINEL` | 7 imágenes (6 PNG compuestos y `fuelle.jpeg`) |
+| `Models/MAC` | 4 imágenes (`obsidian.png` y 3 PNG de CUAU-68) |
+| `UI` | 33 PNG de texto |
+
+**[PENDIENTE: procedencia y licencia de las texturas de los modelos y de la plaza (las cuatro de la plaza parecen de una biblioteca de texturas libres; confirmar la fuente).]**
+
+---
+
+## 14. Pruebas y verificación
+
+### 14.1 Pruebas realizadas
+
+| ID | Prueba | Resultado |
+|---|---|---|
+| PT-01 | Configuración y compilación **desde una carpeta limpia** (CMake 3.31.6, g++ 14.2, GLFW 3.4, Assimp 5.4.3) | **Aprobada.** `Built target proyecto_lab_main`, 3 advertencias y sin errores |
+| PT-02 | Arranque y carga de los 41 OBJ | **Aprobada.** Sin mensajes `ERROR::ASSIMP` ni de shaders |
+| PT-03 | Recorrido completo de las 10 escenas con teclas simuladas (`Enter`, `Espacio`, `← → ←`) hasta la pantalla «FIN» | **Aprobada.** Las 10 escenas se recorren en ≈ 96 s |
+| PT-04 | Captura y revisión visual de cada escena (13 capturas del manual de usuario) | **Aprobada** tras corregir cámaras dentro de la iglesia, actores hundidos en los escalones y un SENTINEL que no apuntaba a CUAU |
+| PT-05 | Escena 4: flecha correcta e incorrecta | **Aprobada.** La incorrecta muestra «Tecla incorrecta» y no avanza |
+| PT-06 | Salto entre escenas con `AvPág` | **Aprobada** tras corregir un defecto: CUAU quedaba acostado al saltar desde la escena 1 |
+| PT-07 | Modo edición: `F3`, `TAB`, `P`, guardado y **carga** de `ajustes_escenas.txt` | **Aprobada** («Ajustes cargados… (1)») |
+| PT-08 | Texto del HUD: acentos, flechas y nitidez | **Aprobada** |
+| PT-09 | Agarre de la MAC en la palma, desde varios ángulos | **Aprobada** tras mover el punto de agarre |
+| PT-10 | Orientación: los personajes caminan de frente | **Aprobada** tras corregir el sentido (el OBJ mira a +Z) |
+| PT-11 | Tiempo de arranque y memoria | ≈ **8.3 s** (3 corridas) y ≈ **196 MB** |
+
+### 14.2 Defectos encontrados y corregidos
+
+| Defecto | Causa | Corrección |
+|---|---|---|
+| Piezas de un archivo incluían otro modelo | `select_all(DESELECT)` de Blender no deselecciona objetos ocultos y el exportador los incluyó | Deseleccionar explícitamente y verificar los conteos de vértices |
+| Verde del SENTINEL casi negro | Se convirtió dos veces a lineal una imagen generada que ya era lineal | Detectar si la imagen es *float* lineal antes de convertir |
+| CUAU caminaba hacia atrás | Se supuso que el modelo miraba a −Z; mira a +Z | Corregir giros y signos |
+| CUAU acostado en otras escenas | La inclinación solo se reiniciaba en la escena 1 | Reiniciarla en cada cuadro |
+| Ajustes perdidos al cerrar | Vivían solo en memoria | Guardado automático en `ajustes_escenas.txt` |
+
+### 14.3 Pendientes de validación
+
+| ID | Qué falta | Motivo |
+|---|---|---|
+| VAL-01 | Medir **fotogramas por segundo** | No se midió |
+| VAL-02 | Probar en **otras GPU**, en pantallas HiDPI y a otras resoluciones | Solo se dispone de una AMD Radeon 610M |
+| VAL-03 | **Windows** (ejecutable) | **[PENDIENTE]** |
+| VAL-04 | Comparar visualmente con las fotografías de referencia | Faltan las capturas comparables |
+
+---
+
+## 15. Diagrama de Gantt
+
+![Diagrama de Gantt](gestion/Gantt_Proyecto.png)
+
+El diagrama se apoya en las cuatro entregas parciales de la clase de teoría y en los commits reales del repositorio. **Las barras son ventanas de entrega, no horas trabajadas.** Detalles, fuentes y limitaciones en [`gestion/Explicacion_Gantt.md`](gestion/Explicacion_Gantt.md); datos en [`gestion/Cronograma.csv`](gestion/Cronograma.csv) y versión editable en [`gestion/Gantt_Proyecto.mmd`](gestion/Gantt_Proyecto.mmd).
+
+---
+
+## 16. Conclusiones
+
+**Lo logrado.** Se construyó un relato interactivo completo, de diez escenas, sobre una recreación estilizada de la Plaza de las Tres Culturas, con cinco animaciones por código (tres sencillas y dos complejas), modelado jerárquico de tres personajes, una máquina de estados explícita, iluminación con una luz dinámica y un HUD nítido. El programa compila desde cero y recorre toda la historia sin errores.
+
+**Lo aprendido.**
+
+- El modelado jerárquico con **origen en el pivote** simplifica enormemente las animaciones: basta rotar cada pieza y la jerarquía hace el resto.
+- Una **máquina de estados** separa claramente qué ve y qué puede hacer el usuario en cada momento, lo que facilita añadir o ajustar escenas.
+- Pasar un modelo de Blender a OpenGL exige entender qué se conserva en el OBJ: los materiales por nodos no viajan y hubo que **componer las texturas** con la misma matemática.
+- Los errores más costosos fueron de **convenciones** (hacia dónde mira un modelo, qué espacio de color tiene una imagen); verificarlos con capturas automáticas ahorró mucho tiempo.
+
+**Limitaciones y trabajo futuro.** La integración se concentró en los últimos días y dejó poco margen para pruebas en otros equipos; quedan pendientes la versión para Windows, la medición del rendimiento, el ajuste dinámico de la ventana, la detección de colisiones, el audio y reducir el tiempo de arranque (cargar texturas de forma diferida o en menor resolución).
+
+---
+
+## 17. Referencias y créditos
+
+**Código base y bibliotecas**
+
+- Código base del profesor de Laboratorio de Computación Gráfica (carga de modelos, cámara, iluminación, modelado jerárquico y máquina de estados).
+- OpenGL — <https://www.opengl.org>
+- GLFW — <https://www.glfw.org>
+- GLM — <https://glm.g-truc.net>
+- Assimp — <https://assimp.org>
+- Blender — <https://www.blender.org>
+- Pillow (generación de imágenes de texto) — <https://python-pillow.org>
+- Fuente DejaVu Sans (licencia libre) — <https://dejavu-fonts.github.io>
+
+**Recursos**
+
+- Modelo de la plaza: **[PENDIENTE: nombre completo de Víctor]**.
+- Los conceptos visuales de CUAU-68 y SENTINEL (generados con inteligencia artificial) se usaron como referencia de diseño; la portada se generó con inteligencia artificial a partir de capturas de los modelos.
+- Fotografías de referencia y créditos: [`referencias/Comparativa_Tlatelolco.md`](referencias/Comparativa_Tlatelolco.md).
+- Texturas: **[PENDIENTE: procedencia y licencias]**.
+
+---
+
+## 18. Anexos
+
+### Anexo A — Teclas
+
+| Modo | Tecla | Acción |
+|---|---|---|
+| Relato | `Enter` | Avanzar texto y escenas |
+| Relato | `Espacio` | Acción de la escena |
+| Relato | `←` `→` | Esquivar (escena 4) |
+| Todos | `Esc` | Salir |
+| Desarrollador | `AvPág` / `RePág` | Escena siguiente / anterior |
+| Desarrollador | `F1` · `C` | Cámara libre · imprimir la cámara |
+| Desarrollador | `F2` | Relato / banco de pruebas |
+| Desarrollador | `F3` | Modo edición (`TAB` actor, `J L I K U O` mover, `Q E` girar, `P` imprimir) |
+| Banco de pruebas | `W A S D`, ratón, `TAB`, `J L I K U O`, `Q E`, `Z X`, `P` | Cámara, mover, girar, escalar e imprimir |
+| Banco de pruebas | `N` `B` `V` | Sierras, barrido y esquive |
+| Banco de pruebas | `G` `R` `H` `F` | Modelos por partes, pose T, luces de CUAU, obreros |
+
+### Anexo B — Opciones de línea de comandos
+
+| Opción | Efecto |
+|---|---|
+| `--escena N` | Empieza en la escena N, lista para su acción |
+| `--teclas t:TECLA,…` | Simula teclas (`SPACE`, `ENTER`, `LEFT`, `RIGHT`, `PGDN`, `PGUP`, `TAB`, `F3` y letras) en el segundo `t` |
+| `--cam px py pz mx my mz` | Fija la cámara (posición y punto de mira) |
+| `--foto archivo.png T` | Guarda una captura en el segundo `T` y cierra |
+
+### Anexo C — Compilar y ejecutar
+
+```bash
+cmake -S . -B build
+cmake --build build -j
+cd build/proyecto_lab && ./proyecto_lab_main
+```
+
+Las instrucciones completas, con paquetes y solución de problemas, están en el [manual de usuario](Manual_de_Usuario.md).
