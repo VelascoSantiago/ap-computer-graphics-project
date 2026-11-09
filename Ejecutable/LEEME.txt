@@ -1,0 +1,8 @@
+T68 Sci-Fi Tribute - ejecutable para Windows (64 bits)
+
+Ejecuta proyecto_lab_main.exe con doble clic. Debe quedar junto a las carpetas
+Models, Shader y UI (no las muevas). Tarda unos 8 segundos en abrir.
+Enter avanza el texto; Espacio es la accion de cada escena; flechas en la escena 4; Esc sale.
+Hace falta una GPU con OpenGL 3.3 o superior.
+
+Linux: compila desde la raiz del repo (ver docs/Manual_de_Usuario.md).

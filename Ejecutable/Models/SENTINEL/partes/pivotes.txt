@@ -1,0 +1,14 @@
+# pieza | pivote (x y z) en coordenadas OBJ | padre | desplazamiento respecto al pivote del padre (x y z)
+pelvis               0.000   1.780  -0.170 | -                |   0.000   0.000   0.000
+torso                0.000   3.700  -0.170 | pelvis           |   0.000   1.920   0.000
+brazo_sup_izq        1.860   4.810  -0.520 | torso            |   1.860   1.110  -0.350
+brazo_sup_der       -1.860   4.810  -0.520 | torso            |  -1.860   1.110  -0.350
+antebrazo_izq        4.860   4.730  -0.830 | brazo_sup_izq    |   3.000  -0.080  -0.310
+antebrazo_der       -4.860   4.730  -0.830 | brazo_sup_der    |  -3.000  -0.080  -0.310
+muslo_izq            1.110   1.300  -0.370 | pelvis           |   1.110  -0.480  -0.200
+muslo_der           -1.110   1.300  -0.370 | pelvis           |  -1.110  -0.480  -0.200
+pantorrilla_izq      1.310  -2.020  -0.660 | muslo_izq        |   0.200  -3.320  -0.290
+pantorrilla_der     -1.310  -2.020  -0.660 | muslo_der        |  -0.200  -3.320  -0.290
+pie_izq              1.500  -7.200  -1.350 | pantorrilla_izq  |   0.190  -5.180  -0.690
+pie_der             -1.500  -7.200  -1.350 | pantorrilla_der  |  -0.190  -5.180  -0.690
+railgun             10.584   1.240  -0.117 | -                |   0.000   0.000   0.000
