@@ -3,9 +3,9 @@
 ## Información del equipo
 | ID | Dato requerido | Dónde se usa |
 |---|---|---|
-| EQ-01 | Roles (integrantes, equipo H y grupo 4 ya anotados) | Portadas, sección 5.4 del manual técnico |
-| EQ-02 | Nombre completo de Víctor (modelo de la plaza) | Créditos |
-| EQ-03 | Decidir si se menciona el uso de asistentes de IA | Manual técnico 5.4 y 17 |
+| EQ-01 | Roles — **resuelto** (2026-11-09) | Sección 5.4 del manual técnico |
+| EQ-02 | Víctor (equipo de teoría) acreditado por nombre; apellidos opcionales | Créditos |
+| EQ-03 | Mención de asistentes de IA — **resuelto** (Gemini, ChatGPT, Claude) | Manual técnico 5.4 y 17 |
 | EQ-04 | Procedencia y licencias de texturas y modelos | Manual técnico 13.4 y 17 |
 | EQ-05 | Responsables de cada fase del Gantt y fecha de video y exposición | Gantt |
 
@@ -15,8 +15,8 @@
 | VAL-01 | Compilar desde carpeta limpia en Linux | **Hecha** (sin errores, 3 advertencias) |
 | VAL-02 | Recorrido completo de las 10 escenas | **Hecha** (~96 s) |
 | VAL-03 | Medir fotogramas por segundo y probar en otras GPU | Pendiente |
-| VAL-04 | Ejecutable de Windows (`.exe`) y carpeta `Ejecutable/` sin `ajustes_escenas.txt` | Pendiente |
-| VAL-05 | Probar el ejecutable copiado a una carpeta limpia | Pendiente |
+| VAL-04 | Ejecutable de Windows (`.exe`) y carpeta `Ejecutable/` sin `ajustes_escenas.txt` | **Hecha** (funciona en Windows 11) |
+| VAL-05 | Probar el ejecutable copiado a una carpeta limpia | **Hecha** |
 
 ## Evidencia visual
 - CAP-01 a CAP-05 (capturas del manual de usuario): **hechas**.

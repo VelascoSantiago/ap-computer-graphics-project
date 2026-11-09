@@ -81,7 +81,7 @@ Desarrollar una aplicación gráfica interactiva en OpenGL que recree la Plaza d
 - Ajuste dinámico del tamaño de la ventana.
 - Guardado del progreso del relato.
 - Reproducción fotorrealista: la recreación es estilizada, no un levantamiento arquitectónico.
-- Ejecutable para Windows (**[PENDIENTE]**, ver sección 4).
+- Ejecutable para Windows (validado en Windows 11, ver sección 4).
 
 ---
 
@@ -100,7 +100,7 @@ Desarrollar una aplicación gráfica interactiva en OpenGL que recree la Plaza d
 | **Carga al arranque.** Se cargan 41 OBJ y 28 imágenes (algunas de 2048 × 2048). | El programa tarda **≈ 8.3 s** en mostrar el primer cuadro (medido en el equipo de pruebas) y usa ≈ **196 MB** de RAM. | Mediciones propias, 3 corridas. |
 | **Rutas relativas.** Los recursos se buscan en `Models/`, `Shader/` y `UI/` del directorio de trabajo. | Hay que ejecutar desde `build/proyecto_lab` o junto a esas carpetas. | CMake crea los enlaces simbólicos. |
 | **Luz puntual única.** Hay una sola luz puntual (`NUMBER_OF_POINT_LIGHTS = 1`) y el *spot* queda apagado. | Solo un destello a la vez. | Suficiente para el barrido (ver 11.4). |
-| **Plataforma.** Validado en Linux (Debian 13). | La versión para Windows está **pendiente**. | **[PENDIENTE]** |
+| **Plataforma.** Validado en Linux (Debian 13). | El ejecutable de Windows se validó en Windows 11. | Resuelto |
 | **Rendimiento no medido.** No se midieron fotogramas por segundo ni se probó en otras GPU. | Se desconoce el mínimo de hardware. | Solo se probó en una AMD Radeon 610M. |
 
 ---
@@ -137,10 +137,11 @@ El **modelado, texturizado y animación** de los personajes avanzaron con las en
 
 | Rol | Responsable |
 |---|---|
-| Modelado y texturizado de CUAU-68, SENTINEL, MAC y obreros | **[PENDIENTE]** |
-| Modelo de la plaza | Víctor — **[PENDIENTE: nombre completo]** |
-| Programación e integración | **[PENDIENTE]** |
-| Documentación | **[PENDIENTE]** |
+| Modelado y texturizado de CUAU-68, SENTINEL, MAC y obreros | Santiago Velasco García y Cristian Michael Aguilar Chávez (desarrolladores) |
+| Modelo de la plaza | Víctor, del equipo de teoría de la asignatura (modelo base reutilizado con su crédito) |
+| Programación e integración | Santiago Velasco García y Cristian Michael Aguilar Chávez (desarrolladores) |
+| Product owner (dirección del producto, storyboard y prioridades) | Santiago Velasco García |
+| Documentación | Cristian Michael Aguilar Chávez (documentador) |
 
 | Herramienta | Uso |
 |---|---|
@@ -149,7 +150,9 @@ El **modelado, texturizado y animación** de los personajes avanzaron con las en
 | Blender | Modelado, texturizado y exportación OBJ |
 | Python y Pillow | Textos del HUD, diagramas y composición de texturas |
 | Git y GitHub | Versionado y entrega |
-| **[CONFIRMAR: ¿se menciona el uso de asistentes de inteligencia artificial en el código y los textos?]** | |
+| Gemini (Google) | Consultor conceptual y guía para el uso de Blender |
+| ChatGPT (OpenAI) | Generación de imágenes: conceptos visuales de CUAU-68 y SENTINEL y portada del manual |
+| Claude (Anthropic) | Asistencia de programación e implementación |
 
 ---
 
@@ -715,7 +718,7 @@ Las capturas del modelo de los siete elementos y las fotografías de referencia 
 |---|---|---|
 | VAL-01 | Medir **fotogramas por segundo** | No se midió |
 | VAL-02 | Probar en **otras GPU**, en pantallas HiDPI y a otras resoluciones | Solo se dispone de una AMD Radeon 610M |
-| VAL-03 | **Windows** (ejecutable) | **[PENDIENTE]** |
+| VAL-03 | **Windows** (ejecutable) | **Aprobada.** Funciona correctamente en Windows 11 |
 | VAL-04 | Comparar visualmente con las fotografías de referencia | Faltan las capturas comparables |
 
 ---
@@ -758,8 +761,8 @@ El diagrama se apoya en las cuatro entregas parciales de la clase de teoría y e
 
 **Recursos**
 
-- Modelo de la plaza: **[PENDIENTE: nombre completo de Víctor]**.
-- Los conceptos visuales de CUAU-68 y SENTINEL (generados con inteligencia artificial) se usaron como referencia de diseño; la portada se generó con inteligencia artificial a partir de capturas de los modelos.
+- Modelo de la plaza: Víctor, del equipo de teoría de la asignatura.
+- Los conceptos visuales de CUAU-68 y SENTINEL y la portada del manual se generaron con ChatGPT y se usaron como referencia de diseño. Gemini se consultó como apoyo conceptual y guía para Blender, y Claude como asistencia de programación e implementación.
 - Fotografías de referencia y créditos: [`referencias/Comparativa_Tlatelolco.md`](referencias/Comparativa_Tlatelolco.md).
 - Texturas: **[PENDIENTE: procedencia y licencias]**.
 

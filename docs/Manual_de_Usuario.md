@@ -120,7 +120,7 @@ cd build/proyecto_lab
 
 ### 3.2 Windows (ejecutable)
 
-**[PENDIENTE: completar cuando esté listo el ejecutable para Windows.]** Debe indicar, como mínimo: dónde está el ejecutable (carpeta `Ejecutable/`), que las carpetas `Models`, `Shader` y `UI` deben estar **junto** al `.exe`, y cómo abrirlo (doble clic o desde una terminal).
+El ejecutable está en la carpeta `Ejecutable/` (`proyecto_lab_main.exe`, 64 bits). Las carpetas `Models`, `Shader` y `UI` deben estar **junto** al `.exe`, sin moverlas. Se abre con doble clic o desde una terminal. Tarda unos 8 segundos en cargar los modelos. Requiere una GPU con OpenGL 3.3 o superior. Se validó en Windows 11.
 
 ### 3.3 Cerrar el programa
 
@@ -380,9 +380,10 @@ Teclas simulables en `--teclas`: `SPACE`, `ENTER`, `LEFT`, `RIGHT`, `PGDN`, `PGU
 
 | Recurso | Autoría y procedencia |
 |---|---|
-| Modelo de la **Plaza de las Tres Culturas** (plaza, iglesia, edificio, vestigios, lápida, árboles, mobiliario) | **[PENDIENTE: nombre completo de Víctor y confirmación del crédito]** |
-| **CUAU-68**, **SENTINEL MX**, **MAC** y **obreros** | Modelados en Blender por el equipo. Los conceptos visuales de CUAU-68 y SENTINEL se generaron con inteligencia artificial y se usaron como referencia de diseño. |
-| **Portada** | Generada con inteligencia artificial a partir de capturas de los modelos de Blender. |
+| Modelo de la **Plaza de las Tres Culturas** (plaza, iglesia, edificio, vestigios, lápida, árboles, mobiliario) | Víctor, del equipo de teoría de la asignatura (modelo reutilizado con su crédito). |
+| **CUAU-68**, **SENTINEL MX**, **MAC** y **obreros** | Modelados en Blender por el equipo. Los conceptos visuales de CUAU-68 y SENTINEL se generaron con ChatGPT y se usaron como referencia de diseño. |
+| **Portada** | Generada con ChatGPT a partir de capturas de los modelos de Blender. |
+| **Asistencia** | Gemini: consultor conceptual y guía para Blender. Claude: asistencia de programación e implementación. |
 | **Texturas** de los robots y la plaza | **[PENDIENTE: procedencia y licencia de cada textura]** |
 | **Textos del HUD** | Imágenes PNG generadas con Python y Pillow, con la fuente DejaVu Sans (licencia libre). |
 | Software | OpenGL, GLFW, GLAD, GLM, SOIL2 y Assimp (código base de la asignatura y bibliotecas libres); Blender y Python para el modelado y las imágenes de texto. |
