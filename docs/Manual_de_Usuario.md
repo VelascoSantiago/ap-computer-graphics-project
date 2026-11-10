@@ -7,7 +7,8 @@ Laboratorio de Computación Gráfica · Profesor: Ing. Edén Espinoza Urzúa
 
 Equipo **H** — Integrantes: Santiago Velasco García y Cristian Michael Aguilar Chávez
 Grupo de laboratorio: **4**
-Fecha de entrega: 9 de noviembre de 2026
+Fecha de entrega: 9 de noviembre de 2026  
+Video explicativo: <https://www.youtube.com/watch?v=_mIKQs8rzkg>
 Versión documentada: rama `main`, a partir del commit `0024f94`
 
 ---

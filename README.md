@@ -3,6 +3,9 @@
 Proyecto final de Laboratorio de Computación Gráfica (OpenGL). **Equipo H:** Santiago Velasco García y Cristian Michael Aguilar Chávez.
 Recreación estilizada de la Plaza de las Tres Culturas (Tlatelolco) con los mechas CUAU-68 y SENTINEL.
 
+## Video explicativo
+<https://www.youtube.com/watch?v=_mIKQs8rzkg>
+
 ## Ejecutar en Windows
 Descarga el repositorio (Code → Download ZIP), descomprímelo y abre `Ejecutable/proyecto_lab_main.exe` (debe quedar junto a `Models/`, `Shader/` y `UI/`). Tarda unos 8 s en abrir. Más detalles en `Ejecutable/LEEME.txt` y `docs/Manual_de_Usuario.md`.
 
@@ -28,3 +31,4 @@ Descarga el repositorio (Code → Download ZIP), descomprímelo y abre `Ejecutab
 - 2026-11-09: ajustes de escenas y textos (`99ef023`); integración del PR #1 (`0024f94`).
 - 2026-11-09: manual de usuario y manual técnico nuevos, diagramas de flujo y de estados, Gantt, capturas de referencia y opción `--sinhud` (`552c89e`, `bdba803`).
 - 2026-11-09: GitHub Actions para compilar en Windows y Linux, y ejecutable estático de Windows en `Ejecutable/`.
+- 2026-11-09: video explicativo publicado en YouTube (liga al inicio de este README).
